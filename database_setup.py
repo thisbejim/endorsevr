@@ -12,6 +12,10 @@ class Course(Base):
     __tablename__ = 'course'
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
+    description = Column(String(250))
+    category = Column(String(250))
+    timezone = Column(String(80))
+    max_students = Column(Integer)
 
 
 class CourseItem(Base):
@@ -20,9 +24,17 @@ class CourseItem(Base):
     id = Column(Integer, primary_key=True)
     description = Column(String(250))
     category = Column(String(250))
-    price = Column(String(8))
     course_id = Column(Integer, ForeignKey('course.id'))
     course = relationship(Course)
+
+class Student(Base):
+    __tablename__ = 'student'
+    name = Column(String(250), nullable=False)
+    id = Column(Integer, primary_key=True)
+    course_id = Column(Integer, ForeignKey('course.id'))
+    course = relationship(Course)
+
+#class user
 
     @property
     def serialize(self):

@@ -21,13 +21,19 @@ def courses():
 @app.route('/new', methods=['GET', 'POST'])
 def newCourse():
     if request.method == 'POST':
-        nCourse = Course(name=request.form['name'])
-        session.add(nCourse)
+        thisCourse = Course(name=request.form['name'], description=request.form['description'],
+                            category=request.form['category'], timezone=request.form['timezone'],
+                            max_students=request.form['maxstudents'])
+        session.add(thisCourse)
         session.commit()
         flash("New Course Created")
         return redirect(url_for('courses'))
     else:
         return render_template('new_course.html')
+
+#@app.route('/courses/<int:course_id/edit>', methods=['GET', 'POST'])
+#def editCourse(course_id)
+
 
 
 if __name__ == '__main__':
