@@ -1,0 +1,14 @@
+<htlm>
+<head>
+    
+</head>
+<body>
+    <h1>Course page</h1>
+    <a href="{{ url_for('newCourse')}}">New course</a>
+    {% for i in courses %}
+    </br>
+    {{ i.name }}
+    {% endfor %}
+    
+</body>
+</htlm>
