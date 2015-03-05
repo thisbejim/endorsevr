@@ -1,0 +1,20 @@
+<html> 
+<head>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
+</head>
+
+
+<body>
+    <h1>{{ course.name }}</h1>
+    <a href="{{ url_for('newItem',course_id=course.id)}}">Add Courseware</a>
+    {% for i in items %}
+    {{ i.name }}
+    {{ i.description }}
+    {{ i.category }}
+    {% endfor %}
+    
+    </br>
+    <a class="btn btn-default" href="{{ url_for('courses')}}" role="button">Back to Courses</a>
+</body>
+</html>

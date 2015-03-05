@@ -31,8 +31,23 @@ def newCourse():
     else:
         return render_template('new_course.html')
 
-#@app.route('/courses/<int:course_id/edit>', methods=['GET', 'POST'])
-#def editCourse(course_id)
+@app.route('/courses/<int:course_id>/')
+def course(course_id):
+        this_course = session.query(Course).filter_by(id=course_id).one()
+        items = session.query(CourseItem).filter_by(course_id=course_id).all()
+        return render_template('course.html', course=this_course, items=items)
+
+@app.route('/courses/<int:course_id>/newitem/', methods=['GET', 'POST'])
+def newItem(course_id):
+    if request.method == 'POST':
+        thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
+                              category=request.form['category'])
+        session.add(thisItem)
+        session.commit()
+        flash("New Item Created")
+        return redirect(url_for('course', course_id=course_id))
+    else:
+        return render_template('new_item.html', course_id=course_id)
 
 
 
