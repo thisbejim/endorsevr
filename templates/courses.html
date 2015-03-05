@@ -1,19 +1,31 @@
 <htlm>
 <head>
-    
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
 </head>
 <body>
-    <h1>Course page</h1>
-    <a href="{{ url_for('newCourse')}}">New course</a>
+    <div class="row">
+    <div class="col-md-12 text-center"><h1>Course Page</h1></div>
+    </div>
+    <div class="row">
+    <div class="col-md-12 text-center"><a class="btn btn-default" href="{{ url_for('newCourse')}}" role="button">New course</a></div>
+    </div>
+   
     {% for i in courses %}
-    </br>
-    {{ i.name }}
-    {{ i.description }}
-    {{ i.category }}
-    {{ i.timezone }}
-    {{ i.max_students }}
+    <div class="row">
+    <div class="col-md-12 text-center"><h2>{{ i.name }}</h2></div>
+    </div>
+    <div class="row">
+    <div class="col-md-12 text-center">{{ i.description }}</div>
+    </div>
+    <div class="row">
+    <div class="col-md-12 text-center text-primary">{{ i.category }}</div>
+    </div>
+    <div class="row">
+    <div class="col-md-6 text-right">Max Students: {{ i.max_students }}</div>
+    <div class="col-md-6">Timezone: {{ i.timezone }}</div>
+    </div>
     {% endfor %}
-    </br>
+    </div>
     
 </body>
 </htlm>
