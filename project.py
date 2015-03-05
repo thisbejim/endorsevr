@@ -40,8 +40,18 @@ def course(course_id):
 @app.route('/courses/<int:course_id>/newitem/', methods=['GET', 'POST'])
 def newItem(course_id):
     if request.method == 'POST':
-        thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
-                              category=request.form['category'])
+        thisItem = None
+        if request.form['videourl']:
+            thisUrl=request.form['videourl']
+            referb = thisUrl.split("=")
+            thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
+                                  category=request.form['category'], youtube_url=referb[1])
+        if request.form['audiourl']:
+            thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
+                                  category=request.form['category'], audio_url=request.form['audiourl'])
+        if request.form['text']:
+            thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
+                                  category=request.form['category'], text=request.form['text'])
         session.add(thisItem)
         session.commit()
         flash("New Item Created")

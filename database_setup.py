@@ -24,6 +24,10 @@ class CourseItem(Base):
     id = Column(Integer, primary_key=True)
     description = Column(String(250))
     category = Column(String(250))
+    youtube_url = Column(String(250))
+    audio_url = Column(String(250))
+    text = Column(String(250))
+    #position = Column(Integer) the position in the course flow
     course_id = Column(Integer, ForeignKey('course.id'))
     course = relationship(Course)
 

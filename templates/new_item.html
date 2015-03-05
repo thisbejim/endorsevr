@@ -2,18 +2,23 @@
 <head>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-beta.5/angular.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-beta.5/angular-animate.js"></script>
 </head>
-<body>
-
+<body ng-app="ngAnimate">
     <form action="{{ url_for('newItem', course_id=course_id)}}" method='post'>
     <p>Name:</p>
     <input type="text" size="30" name="name" placeholder="Item Name">
     <input type="text" size="30" name="description" placeholder="Description">
-    <select name="category" placeholder="Category">
+    <select ng-model="myDropDown" name="category" placeholder="Category">
         <option value="video">Video</option>
         <option value="audio">Audio</option>
-        <option value="article">Article</option>
+        <option value="text">Text</option>
     </select>
+    <input ng-show="myDropDown=='video'" type="text" size="30" name="videourl" placeholder="Video Url">
+    <input ng-show="myDropDown=='audio'" type="text" size="30" name="audiourl" placeholder="Audio Url">
+    <input ng-show="myDropDown=='text'" type="text" size="30" name="text" placeholder="Text">
+    </br></br>
     <input class="btn btn-default" type="submit" value="create">
     </form>
     <a class="btn btn-default" href="{{ url_for('course', course_id=course_id)}}" role="button">Back to Course</a>
