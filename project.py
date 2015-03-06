@@ -12,6 +12,7 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['GITHUB_CLIENT_ID'] = None
 app.config['GITHUB_CLIENT_SECRET'] = None
+app.secret_key = '434939889434934'
 
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
