@@ -1,5 +1,6 @@
 import sys
 import os
+import logging
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask.ext.github import GitHub
 from werkzeug import secure_filename
@@ -11,6 +12,9 @@ app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['GITHUB_CLIENT_ID'] = None
 app.config['GITHUB_CLIENT_SECRET'] = None
+
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 github = GitHub(app)
 
