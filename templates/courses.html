@@ -5,15 +5,17 @@
 </head>
 <body>
     <div class="row">
-    <div class="col-md-12 text-center"><h1>Course Page</h1></div>
+    <div class="col-md-12 text-center"><h1>Courses</h1></div>
     </div>
     <div class="row">
     <div class="col-md-12 text-center"><a class="btn btn-default" href="{{ url_for('newCourse')}}" role="button">New course</a></div>
     </div>
-   
     {% for i in courses %}
     <div class="row">
     <div class="col-md-12 text-center"><h2><a href="{{ url_for('course', course_id=i.id)}}">{{ i.name }}</a></h2></div>
+    </div>
+    <div class="row">
+    <div class="col-md-12 text-center img-rounded"><img src="{{ url_for('static', filename='uploads/')}}{{i.picture_name}}" height="100px"></div>
     </div>
     <div class="row">
     <div class="col-md-4"></div>
@@ -22,10 +24,6 @@
     </div>
     <div class="row">
     <div class="col-md-12 text-center text-primary">{{ i.category }}</div>
-    </div>
-    <div class="row">
-    <div class="col-md-6 text-right">Max Students: {{ i.max_students }}</div>
-    <div class="col-md-6">Timezone: {{ i.timezone }}</div>
     </div>
     {% endfor %}
     </div>

@@ -1,9 +1,16 @@
-<h2> new course page <h2>
+<html>
+<head>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
+</head>
+<body>
+    <h2> new course page </h2>
     
-    <form action="{{ url_for('newCourse')}}" method='post'>
+    <form action="{{ url_for('newCourse')}}" method='post' enctype="multipart/form-data">
     <p>Name:</p>
-    <input type="text" size="30" name="name" placeholder="Course Name">
-    <input type="text" size="30" name="description" placeholder="Description">
+    <input type="text" name="name" placeholder="Course Name">
+    <input type="file" name="file">
+    <input type="text" name="description" placeholder="Description">
     <select name="category" placeholder="Category">
         <option value="webdevelopment">Webdevelopment</option>
         <option value="education">Education</option>
@@ -12,7 +19,13 @@
         <option value="UTC">UTC</option>
         <option value="AEST">AEST</option>
     </select>
-    <input type="number" size="30" name="maxstudents" placeholder="Max Student">
+    <input type="number" name="maxstudents" placeholder="Max Student">
     </select>
-    <input type="submit" value="create">
+    <input class="btn btn-default" type="submit" role ="button" value="create">
     </form>
+    
+    <div class="row">
+    <div class="col-md-12 text-center"><a class="btn btn-default" href="{{ url_for('courses')}}" role="button">Back to Courses</a></div>
+    </div>
+ </body>       
+</html>
