@@ -6,7 +6,7 @@ from flask.ext.github import GitHub
 from werkzeug import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = BASE_DIR+'static/uploads/'
+UPLOAD_FOLDER = 'static/uploads/'
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 
 app = Flask(__name__)
@@ -48,7 +48,7 @@ def newCourse():
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            file.save(BASE_DIR.join(app.config['UPLOAD_FOLDER'], filename))
             thisCourse = Course(name=request.form['name'], description=request.form['description'],
                                 category=request.form['category'], picture_name=filename)
         else:
