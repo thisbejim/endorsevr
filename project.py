@@ -5,7 +5,8 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask.ext.github import GitHub
 from werkzeug import secure_filename
 
-UPLOAD_FOLDER = 'static/uploads/'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+UPLOAD_FOLDER = BASE_DIR+'static/uploads/'
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 
 app = Flask(__name__)
