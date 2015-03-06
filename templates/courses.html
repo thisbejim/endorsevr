@@ -1,4 +1,4 @@
-<htlm>
+<html>
 <head>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
@@ -8,7 +8,8 @@
     <div class="col-md-12 text-center"><h1>Courses</h1></div>
     </div>
     <div class="row">
-    <div class="col-md-12 text-center"><a class="btn btn-default" href="{{ url_for('newCourse')}}" role="button">New course</a></div>
+    <div class="col-md-6 text-right"><a class="btn btn-default" href="{{ url_for('newCourse')}}" role="button">New course</a></div>
+    <div class="col-md-6 text-left"><a class="btn btn-default" href="{{ url_for('profile')}}" role="button">Profile</a></div>
     </div>
     {% for i in courses %}
     <div class="row">
@@ -29,4 +30,4 @@
     </div>
     
 </body>
-</htlm>
+</html>

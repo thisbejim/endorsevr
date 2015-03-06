@@ -111,7 +111,7 @@ def authorized(oauth_token):
     return redirect(url_for('courses'))
 
 @app.route('/profile')
-def users():
+def profile():
     this_user = db.query(User).filter_by(id=session['user_id']).first()
     if this_user:
         return render_template('profile.html', user=this_user)

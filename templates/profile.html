@@ -1,5 +1,12 @@
-
+<html>
+<head>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
+</head>
+<body>
     <div class="row">
-    <div class="col-md-12 text-center">{{ user.username }}</a></h2></div>
-    <div class="col-md-12 text-center"><img src="{{user.profile_pic}}" height="100px"></a></h2></div>
+    <div class="col-md-12 text-center"><img class="img-circle" src="{{user.profile_pic}}" height="100px"></a></h2></div>
+    <div class="col-md-12 text-center"><h3>{{ user.username }}</h3></a></h2></div>
     </div>
+</body>
+</html>
