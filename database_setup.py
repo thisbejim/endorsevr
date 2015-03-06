@@ -30,11 +30,14 @@ class CourseItem(Base):
     course_id = Column(Integer, ForeignKey('course.id'))
     course = relationship(Course)
 
+
 class User(Base):
-    __tablename__ = 'user'
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(200))
+    profile_pic = Column(String(250))
     github_access_token = Column(String(200))
+
 
     @property
     def serialize(self):

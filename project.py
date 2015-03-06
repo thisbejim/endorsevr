@@ -1,9 +1,11 @@
 import sys
 import os
-import logging
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+import urllib
+from flask import Flask, render_template, g, request, redirect, url_for, flash, jsonify, session
 from flask.ext.github import GitHub
 from werkzeug import secure_filename
+import requests
+import json
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = 'static/uploads/'
@@ -11,12 +13,8 @@ ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['GITHUB_CLIENT_ID'] = None
-app.config['GITHUB_CLIENT_SECRET'] = None
-app.secret_key = '434939889434934'
-
-app.logger.addHandler(logging.StreamHandler(sys.stdout))
-app.logger.setLevel(logging.ERROR)
+app.config['GITHUB_CLIENT_ID'] = '2312fa8eaf712cf786c2'
+app.config['GITHUB_CLIENT_SECRET'] = 'ea735a886f5676eb727dd7f8deb64a444997eb7d'
 
 github = GitHub(app)
 
@@ -29,7 +27,7 @@ from database_setup import Course, Base, CourseItem, User
 engine = create_engine('sqlite:///mentor.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
-session = DBSession()
+db = DBSession()
 
 
 def allowed_file(filename):
@@ -39,7 +37,7 @@ def allowed_file(filename):
 @app.route('/')
 @app.route('/courses')
 def courses():
-    all_courses = session.query(Course).all()
+    all_courses = db.query(Course).all()
     return render_template('courses.html', courses=all_courses)
 
 @app.route('/new', methods=['GET', 'POST'])
@@ -48,14 +46,14 @@ def newCourse():
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(BASE_DIR.join(app.config['UPLOAD_FOLDER'], filename))
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             thisCourse = Course(name=request.form['name'], description=request.form['description'],
                                 category=request.form['category'], picture_name=filename)
         else:
             thisCourse = Course(name=request.form['name'], description=request.form['description'],
                                 category=request.form['category'])
-        session.add(thisCourse)
-        session.commit()
+        db.add(thisCourse)
+        db.commit()
         flash("New Course Created")
         return redirect(url_for('courses'))
     else:
@@ -63,8 +61,8 @@ def newCourse():
 
 @app.route('/courses/<int:course_id>/')
 def course(course_id):
-        this_course = session.query(Course).filter_by(id=course_id).one()
-        items = session.query(CourseItem).filter_by(course_id=course_id).all()
+        this_course = db.query(Course).filter_by(id=course_id).one()
+        items = db.query(CourseItem).filter_by(course_id=course_id).all()
         return render_template('course.html', course=this_course, items=items)
 
 @app.route('/courses/<int:course_id>/newitem/', methods=['GET', 'POST'])
@@ -82,8 +80,8 @@ def newItem(course_id):
         if request.form['text']:
             thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
                                   category=request.form['category'], text=request.form['text'])
-        session.add(thisItem)
-        session.commit()
+        db.add(thisItem)
+        db.commit()
         flash("New Item Created")
         return redirect(url_for('course', course_id=course_id))
     else:
@@ -96,19 +94,29 @@ def login():
 @app.route('/github-callback')
 @github.authorized_handler
 def authorized(oauth_token):
-    next_url = request.args.get('next') or url_for('index')
+    next_url = request.args.get('next')
     if oauth_token is None:
-        flash("Authorization failed.")
         return redirect(next_url)
 
-    user = User.query.filter_by(github_access_token=oauth_token).first()
+    user = db.query(User).filter_by(github_access_token=oauth_token).first()
     if user is None:
-        user = User(oauth_token)
-        session.add(user)
+        payload = {'access_token': oauth_token}
+        r = requests.get('https://api.github.com/user', params=payload)
+        info = json.loads(r.text)
+        user = User(github_access_token=oauth_token, username=info['login'], profile_pic=info['avatar_url'])
+        db.add(user)
+        db.commit()
 
-    user.github_access_token = oauth_token
-    session.commit()
-    return redirect(next_url)
+    session['user_id'] = user.id
+    return redirect(url_for('courses'))
+
+@app.route('/profile')
+def users():
+    this_user = db.query(User).filter_by(id=session['user_id']).first()
+    if this_user:
+        return render_template('profile.html', user=this_user)
+    else:
+        return redirect(url_for('login'))
 
 @github.access_token_getter
 def token_getter():
