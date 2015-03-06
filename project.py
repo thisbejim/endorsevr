@@ -40,8 +40,6 @@ def courses():
 def newCourse():
     if request.method == 'POST':
         file = request.files['file']
-        full_filename = file.name + file.content_type
-        print(full_filename)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
