@@ -13,11 +13,36 @@
     <div class="row">
     <div class="col-md-12 text-center"><h1>{{ course.name }}</h1></div>
     </div>
+        
     {% if course.user_id == user.id %}
     <div class="row">
     <div class="col-md-12 text-center"><a class="btn btn-primary"  href="{{ url_for('newItem',course_id=course.id)}}" role="button"><span class="glyphicon glyphicon-plus"></span></a></div>
     </div>
     {% endif %}
+    
+    {% with dangers = get_flashed_messages(category_filter=["danger"]) %}
+        {% if dangers %}
+                        {%- for msg in dangers %}
+                         <div class="divider"></div>
+                        <div class="row">
+                        <div class="alert alert-danger col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
+                            </div>
+                        {% endfor -%}
+        {% endif %}
+    {% endwith %}
+        
+    
+    {% with successes = get_flashed_messages(category_filter=["success"]) %}
+        {% if successes %}
+                        {%- for msg in successes %}
+                        <div class="divider"></div>
+                        <div class="row">
+                        <div class="alert alert-success col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
+                            </div>
+                        {% endfor -%}
+        {% endif %}
+    {% endwith %}
+        
 <div class="divider"></div>
     
     <ul class="nav nav-tabs col-md-8 col-md-offset-2">
@@ -37,13 +62,14 @@
     {% for i in items %}
     {% if count == 1 %}
     <div class="tab-pane active" id="{{ i.id }}">
-<div class="row"><div class="col-md-8 col-md-offset-2"> <h2>{{ i.name }}</h2> </div></div>
-<div class="row"><div class="col-md-8 col-md-offset-2"> {{ i.description }}</div></div>
 {% if course.user_id == user.id %}
-    <div class="col-md-8 col-md-offset-2">
-    <a class="btn btn-default" href="{{ url_for('editItem', course_id=course.id, item_id=i.id)}}" role="button"><span class="glyphicon glyphicon-cog"></span></a>
+    <div class="col-md-9 text-right">
+    <a class="btn btn-default" id="course_cog" href="{{ url_for('editItem', course_id=course.id, item_id=i.id)}}" role="button"><span class="glyphicon glyphicon-cog"></span></a>
     </div>
     {% endif %}
+<div class="row"><div class="col-md-12 text-center"> <h2>{{ i.name }}</h2> </div></div>
+<div class="row"><div class="col-md-12 text-center"> {{ i.description }}</div></div>
+</br>
 <div class="row">
     <div class="col-md-12 text-center"> 
     {% if i.youtube_url %}
@@ -59,20 +85,23 @@
         
     {% else %}
     <div class="tab-pane" id="{{ i.id }}">
-<div class="row"><div class="col-md-8 col-md-offset-2"> <h2>{{ i.name }}</h2> </div></div>
-<div class="row"><div class="col-md-8 col-md-offset-2"> {{ i.description }}</div></div>
 {% if course.user_id == user.id %}
-    <div class="col-md-8 col-md-offset-2">
-    <a class="btn btn-default" href="{{ url_for('editItem', course_id=course.id, item_id=i.id)}}" role="button"><span class="glyphicon glyphicon-cog"></span></a>
+    <div class="col-md-9 text-right">
+    <a class="btn btn-default" id="course_cog" href="{{ url_for('editItem', course_id=course.id, item_id=i.id)}}" role="button"><span class="glyphicon glyphicon-cog"></span></a>
     </div>
     {% endif %}
+<div class="row"><div class="col-md-12 text-center"> <h2>{{ i.name }}</h2> </div></div>
+<div class="row"><div class="col-md-12 text-center"> {{ i.description }}</div></div>
+    </br>
     <div class="row"><div class="col-md-12 text-center"> 
     {% if i.youtube_url %}
     <iframe width="420" height="315" src="https://www.youtube.com/embed/{{ i.youtube_url }}" frameborder="0" allowfullscreen></iframe>
     {% elif i.audio_url %}  
     <iframe width="50%" height="120" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url={{ i.audio_url }}"></iframe>
     {% else %}
+    <div class="col-md-8 col-md-offset-2 text-left text-overflow">
     <p>{{ i.text }}</p>
+    </div>
     {% endif %}
     </div>
         </div>
@@ -83,7 +112,7 @@
         </div> <!-- end of tab content -->
     <div class="divider"></div>
     <div class="row">
-    <div class="col-md-12 text-center"><a class="btn btn-default" href="{{ url_for('courses')}}" role="button">Back to Courses</a></div>
+    <div class="col-md-12 text-center"><a class="btn btn-primary" href="{{ url_for('courses')}}" role="button"><span class="glyphicon glyphicon-chevron-left"></span></a></div>
     </div>
 </div>
 </body>

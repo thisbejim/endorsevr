@@ -55,14 +55,14 @@
             </div>
     <div class="row">
     {% if i.picture_name != None %}
-    <div class="col-md-4"><img src="{{ url_for('static', filename='uploads/')}}{{i.picture_name}}" height="160px"></div>
+    <div class="col-md-4 img-rounded"><img src="{{ url_for('static', filename='uploads/')}}{{i.picture_name}}" height="160px"></div>
     {% else %}
-    <div class="col-md-4"><img src="{{ url_for('static', filename='uploads/mentor.jpg')}}" height="160px"></div>
+    <div class="col-md-4 img-rounded"><img src="{{ url_for('static', filename='uploads/mentor.jpg')}}" height="160px"></div>
     {% endif %}
     <div class="col-md-8 text-overflow"><h4>Course Description</h4><p>{{ i.description }}</p></div>
     </div>
     <div class="row">
-    <div class="col-md-6 text-primary"><a href="{{ url_for('category', course_category=i.category)}}">{{ i.category }}</a></div>
+    <div class="col-md-6 text-primary">{{ i.category }}</div>
     {% for a in users %} 
     {% if a.id == i.user_id %}
     <div class="col-md-6 text-right"><img class="img-circle" src="{{a.profile_pic}}" height="50px"></div>
@@ -74,6 +74,9 @@
     <div class="col-md-12 text-center boxdivider"></div>
         </div>
     {% endfor %}
+       
+    <div class="row">
+    <div class="col-md-12 text-center"><a class="btn btn-primary" href="{{ url_for('courses')}}" role="button"><span class="glyphicon glyphicon-chevron-left"></span></a></div>
         </div>
     
 </body>
