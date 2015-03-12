@@ -15,7 +15,7 @@ class Course(Base):
     description = Column(String(250))
     category = Column(String(250))
     picture_name = Column(String(250))
-
+    user_id = Column(Integer, ForeignKey('users.id'))
 
 class CourseItem(Base):
     __tablename__ = 'course_item'
@@ -26,8 +26,8 @@ class CourseItem(Base):
     youtube_url = Column(String(250))
     audio_url = Column(String(250))
     text = Column(String(250))
-    #position = Column(Integer) the position in the course flow
     course_id = Column(Integer, ForeignKey('course.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
     course = relationship(Course)
 
 

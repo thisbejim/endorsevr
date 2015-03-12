@@ -2,11 +2,47 @@
 <head>
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
     <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
 </head>
 <body>
+    <div class="container">
     <div class="row">
-    <div class="col-md-12 text-center"><img class="img-circle" src="{{user.profile_pic}}" height="100px"></a></h2></div>
+    <div class="col-md-12 text-center" id="profile_pic"><img class="img-circle" src="{{user.profile_pic}}" height="100px"></div>
     <div class="col-md-12 text-center"><h3>{{ user.username }}</h3></a></h2></div>
     </div>
+    <div class="divider"></div>
+    {% for i in courses %}
+        <div class="col-md-6 col-md-offset-3 coursebox">
+    <div class="row">
+    <div class="col-md-12 text-center"><h2><a href="{{ url_for('course', course_id=i.id)}}">{{ i.name }}</a></h2></div>
+    </div>
+    <div class="row">
+    {% if i.picture_name != None %}
+    <div class="col-md-12 text-center img-rounded"><img src="{{ url_for('static', filename='uploads/')}}{{i.picture_name}}" height="100px"></div>
+    {% else %}
+    <div class="col-md-12 text-center img-rounded"><img src="{{ url_for('static', filename='uploads/mentor.jpg')}}" height="100px"></div>
+    {% endif %}
+    </div>
+    <div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4 text-center text-overflow">{{ i.description }}</div>
+    <div class="col-md-4"></div>
+    </div>
+    <div class="row">
+    <div class="col-md-12 text-center text-primary">{{ i.category }}</div>
+    </div>
+    </div>
+    <div class="row">
+    <div class="col-md-12 text-center boxdivider"></div>
+        </div>
+    {% endfor %}
+    <div class="row">
+    <div id="profile_button"class="col-md-12 text-center">
+   <a class="btn btn-primary"  href="{{ url_for('courses')}}" role="button"><span class="glyphicon glyphicon-chevron-left"></span></a>
+        </div>
+        </div>
+        
+
+</div>
 </body>
 </html>

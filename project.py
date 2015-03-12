@@ -38,20 +38,26 @@ def allowed_file(filename):
 @app.route('/courses')
 def courses():
     all_courses = db.query(Course).all()
-    return render_template('courses.html', courses=all_courses)
+    users = db.query(User).all()
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
+    return render_template('courses.html', courses=all_courses, user=this_user, users=users)
 
 @app.route('/new', methods=['GET', 'POST'])
 def newCourse():
+    this_user = db.query(User).filter_by(id=session['user_id']).first()
     if request.method == 'POST':
         file = request.files['file']
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             thisCourse = Course(name=request.form['name'], description=request.form['description'],
-                                category=request.form['category'], picture_name=filename)
+                                category=request.form['category'], picture_name=filename, user_id=this_user.id)
         else:
             thisCourse = Course(name=request.form['name'], description=request.form['description'],
-                                category=request.form['category'])
+                                category=request.form['category'], user_id=this_user.id)
         db.add(thisCourse)
         db.commit()
         flash("New Course Created")
@@ -63,29 +69,104 @@ def newCourse():
 def course(course_id):
         this_course = db.query(Course).filter_by(id=course_id).one()
         items = db.query(CourseItem).filter_by(course_id=course_id).all()
-        return render_template('course.html', course=this_course, items=items)
+        if 'user_id' in session:
+            this_user = db.query(User).filter_by(id=session['user_id']).first()
+        else:
+            this_user = None
+        print(this_course.user_id)
+        print(this_user.id)
+        return render_template('course.html', course=this_course, items=items, user=this_user)
+
+@app.route('/courses/<int:course_id>/edit', methods=['GET', 'POST'])
+def editCourse(course_id):
+        this_course = db.query(Course).filter_by(id=course_id).one()
+        old_pic = this_course.picture_name
+        if request.method == 'POST':
+            if request.form['name']:
+                this_course.name = request.form['name']
+            if request.form['description']:
+                this_course.description = request.form['description']
+            if request.form['category']:
+                this_course.category = request.form['category']
+            if request.files['file']:
+                if old_pic:
+                    os.remove(os.path.join(app.config['UPLOAD_FOLDER'], old_pic))
+                file = request.files['file']
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                this_course.picture_name = filename
+
+            db.add(this_course)
+            db.commit()
+            return redirect(url_for('course', course_id=course_id))
+        else:
+            return render_template('edit.html', course=this_course)
 
 @app.route('/courses/<int:course_id>/newitem/', methods=['GET', 'POST'])
 def newItem(course_id):
+    checkAuth(course_id)
+    this_user = db.query(User).filter_by(id=session['user_id']).first()
     if request.method == 'POST':
         thisItem = None
         if request.form['videourl']:
             thisUrl = request.form['videourl']
             referb = thisUrl.split("=")
             thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
-                                  category=request.form['category'], youtube_url=referb[1])
+                                  category=request.form['category'], youtube_url=referb[1], user_id=this_user.id)
         if request.form['audiourl']:
             thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
-                                  category=request.form['category'], audio_url=request.form['audiourl'])
+                                  category=request.form['category'], audio_url=request.form['audiourl'],
+                                  user_id=this_user.id)
         if request.form['text']:
             thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
-                                  category=request.form['category'], text=request.form['text'])
+                                  category=request.form['category'], text=request.form['text'], user_id=this_user.id)
         db.add(thisItem)
         db.commit()
         flash("New Item Created")
         return redirect(url_for('course', course_id=course_id))
     else:
         return render_template('new_item.html', course_id=course_id)
+
+@app.route('/courses/<int:course_id>/<int:item_id>/edititem/', methods=['GET', 'POST'])
+def editItem(course_id, item_id):
+        checkAuth(course_id)
+        this_course = db.query(Course).filter_by(id=course_id).one()
+        this_item = db.query(CourseItem).filter_by(id=item_id).one()
+        if request.method == 'POST':
+            if request.form['name']:
+                this_item.name = request.form['name']
+            if request.form['description']:
+                this_item.description = request.form['description']
+            if request.form['category']:
+                this_item.category = request.form['category']
+            if request.form['videourl']:
+                thisUrl = request.form['videourl']
+                referb = thisUrl.split("=")
+                this_item.youtube_url = referb[1]
+                this_item.audio_url = None
+                this_item.text = None
+            if request.form['audiourl']:
+                this_item.audio_url = request.form['audiourl']
+                this_item.youtube_url = None
+                this_item.text = None
+            if request.form['text']:
+                this_item.text = request.form['text']
+                this_item.audio_url = None
+                this_item.youtube_url = None
+
+            db.add(this_item)
+            db.commit()
+            return redirect(url_for('course', course_id=course_id))
+        else:
+            return render_template('edit_item.html', course=this_course, item=this_item)
+
+@app.route('/courses/<int:course_id>/<int:item_id>/deleteitem/', methods=['GET', 'POST'])
+def deleteItem(course_id, item_id):
+        checkAuth(course_id)
+        this_item = db.query(CourseItem).filter_by(id=item_id).one()
+        db.delete(this_item)
+        db.commit()
+        return redirect(url_for('course', course_id=course_id))
 
 @app.route('/login')
 def login():
@@ -112,11 +193,25 @@ def authorized(oauth_token):
 
 @app.route('/profile')
 def profile():
-    this_user = db.query(User).filter_by(id=session['user_id']).first()
-    if this_user:
-        return render_template('profile.html', user=this_user)
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+        user_courses = db.query(Course).filter_by(user_id=this_user.id).all()
+        return render_template('profile.html', user=this_user, courses=user_courses)
     else:
         return redirect(url_for('login'))
+
+
+def checkAuth(course_id):
+    if 'user_id' in session:
+        this_course = db.query(Course).filter_by(id=course_id).one()
+        if this_course.user_id == session['user_id']:
+            return
+        else:
+            flash("You don't have permission to edit that.")
+            return redirect(url_for('course', course_id=course_id))
+    else:
+        flash("Please Log in")
+        return redirect(url_for('courses'))
 
 @github.access_token_getter
 def token_getter():
