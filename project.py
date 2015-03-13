@@ -14,7 +14,7 @@ import cloudinary.api
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = 'static/uploads/'
 
-cloudinary.config(cloud_name="mentorapp", api_key="936542698847873", api_secret="URri2QHl0U8e-Q2whUjpqj7I4f8")
+cloudinary.config(cloud_name="hdriydpma", api_key="936542698847873", api_secret="URri2QHl0U8e-Q2whUjpqj7I4f8")
 
 # Set allowable MIME Types for upload
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
