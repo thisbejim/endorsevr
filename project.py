@@ -1,6 +1,7 @@
 import sys
 import os
 from flask import Flask, render_template, g, request, redirect, url_for, flash, jsonify, session
+import logging
 from flask.ext.github import GitHub
 from werkzeug import secure_filename
 import requests
@@ -22,6 +23,10 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 app = Flask(__name__)
+
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['GITHUB_CLIENT_ID'] = '2312fa8eaf712cf786c2'
 app.config['GITHUB_CLIENT_SECRET'] = 'ea735a886f5676eb727dd7f8deb64a444997eb7d'
