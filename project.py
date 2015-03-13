@@ -14,8 +14,6 @@ import cloudinary.api
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = 'static/uploads/'
 
-cloudinary.config(cloud_name="hdriydpma", api_key="936542698847873", api_secret="URri2QHl0U8e-Q2whUjpqj7I4f8")
-
 # Set allowable MIME Types for upload
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
 def allowed_file(filename):
@@ -27,9 +25,10 @@ app.config['SECRET_KEY'] = 'super secret key'
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['GITHUB_CLIENT_ID'] = '2312fa8eaf712cf786c2'
 app.config['GITHUB_CLIENT_SECRET'] = 'ea735a886f5676eb727dd7f8deb64a444997eb7d'
+
+cloudinary.config(cloud_name="hdriydpma", api_key="936542698847873", api_secret="URri2QHl0U8e-Q2whUjpqj7I4f8")
 
 github = GitHub(app)
 
@@ -88,9 +87,6 @@ def newCourse():
             file = request.files['file']
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename).split(".")
-                print(request.files['file'])
-                print(filename[0])
-                #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
                 thisCourse = Course(name=request.form['name'], description=request.form['description'],
                                     category=request.form['category'], picture_name=filename[0], user_id=this_user.id)
@@ -122,7 +118,6 @@ def course(course_id):
 @app.route('/courses/<int:course_id>/edit', methods=['GET', 'POST'])
 def editCourse(course_id):
         this_course = db.query(Course).filter_by(id=course_id).one()
-        old_pic = this_course.picture_name
         # Check editing privileges
         if checkAuth(course_id):
             if request.method == 'POST':
@@ -134,13 +129,10 @@ def editCourse(course_id):
                 if request.form['category']:
                     this_course.category = request.form['category']
                 if request.files['file']:
-                    # Delete old picture, upload new picture
-                    if old_pic:
-                        os.remove(os.path.join(app.config['UPLOAD_FOLDER'], old_pic))
                     file = request.files['file']
-                    filename = secure_filename(file.filename)
-                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                    this_course.picture_name = filename
+                    filename = secure_filename(file.filename).split(".")
+                    cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
+                    this_course.picture_name = filename[0]
 
                 db.add(this_course)
                 db.commit()
