@@ -90,7 +90,7 @@ def newCourse():
                 filename = secure_filename(file.filename)
                 print(request.files['file'])
                 #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-                cloudinary.uploader.upload(request.files['file'])
+                cloudinary.uploader.upload(request.files['file'], public_id=filename)
                 thisCourse = Course(name=request.form['name'], description=request.form['description'],
                                     category=request.form['category'], picture_name=filename, user_id=this_user.id)
             else:
