@@ -87,12 +87,12 @@ def newCourse():
         if request.method == 'POST':
             file = request.files['file']
             if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
+                filename = secure_filename(file.filename).split(".")
                 print(request.files['file'])
                 #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
                 cloudinary.uploader.upload(request.files['file'], public_id=filename)
                 thisCourse = Course(name=request.form['name'], description=request.form['description'],
-                                    category=request.form['category'], picture_name=filename, user_id=this_user.id)
+                                    category=request.form['category'], picture_name=filename[0], user_id=this_user.id)
             else:
                 thisCourse = Course(name=request.form['name'], description=request.form['description'],
                                     category=request.form['category'], user_id=this_user.id)
