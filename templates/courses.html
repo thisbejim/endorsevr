@@ -75,7 +75,7 @@
           <!-- Check if course has a picture, assign default picture if not -->
       {% if i.picture_name != None %}
           <div class="col-md-4">
-            <img src="{{ url_for('static', filename='uploads/')}}{{i.picture_name}}" height="160px">
+            <img src="http://res-4.cloudinary.com/ht78gfroz/image/upload/{{i.picture_name}}" height="160px">
           </div>
       {% else %}
           <div class="col-md-4">

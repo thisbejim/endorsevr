@@ -3,3 +3,4 @@ SQLAlchemy==0.8.4
 GitHub-Flask==2.0.1
 gunicorn==19.2.1
 requests
+cloudinary

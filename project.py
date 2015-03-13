@@ -5,10 +5,15 @@ from flask.ext.github import GitHub
 from werkzeug import secure_filename
 import requests
 import json
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # App Config
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = 'static/uploads/'
+
+cloudinary.config(cloud_name="sample", api_key="517459437719825", api_secret="3ZMpd8piPZBL17_gR9Xx5Ff8bPY")
 
 # Set allowable MIME Types for upload
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
@@ -78,7 +83,8 @@ def newCourse():
             file = request.files['file']
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                cloudinary.uploader.upload(request.files['file'])
                 thisCourse = Course(name=request.form['name'], description=request.form['description'],
                                     category=request.form['category'], picture_name=filename, user_id=this_user.id)
             else:
