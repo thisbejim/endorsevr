@@ -1,119 +1,151 @@
 <html> 
 <head>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
 </head>
-
-
 <body>
-    <div class="container">
+  <div class="container">
     <div class="row">
-    <div class="col-md-12 text-center"><h1>{{ course.name }}</h1></div>
+      <div class="col-md-12 text-center">
+        <h1>{{ course.name }}</h1>
+      </div>
     </div>
-        
+     <!-- If user is course creator, make course content editable -->   
     {% if course.user_id == user.id %}
     <div class="row">
-    <div class="col-md-12 text-center"><a class="btn btn-primary"  href="{{ url_for('newItem',course_id=course.id)}}" role="button"><span class="glyphicon glyphicon-plus"></span></a></div>
+      <div class="col-md-12 text-center">
+        <a class="btn btn-primary"  href="{{ url_for('newItem',course_id=course.id)}}" role="button">
+          <span class="glyphicon glyphicon-plus"></span>
+        </a>
+      </div>
     </div>
     {% endif %}
-    
+    <!-- Check for new alerts -->
     {% with dangers = get_flashed_messages(category_filter=["danger"]) %}
-        {% if dangers %}
-                        {%- for msg in dangers %}
-                         <div class="divider"></div>
-                        <div class="row">
-                        <div class="alert alert-danger col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
-                            </div>
-                        {% endfor -%}
-        {% endif %}
+      {% if dangers %}
+        {%- for msg in dangers %}
+          <div class="divider"></div>
+          <div class="row">
+            <div class="alert alert-danger col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
+          </div>
+        {% endfor -%}
+      {% endif %}
     {% endwith %}
         
     
     {% with successes = get_flashed_messages(category_filter=["success"]) %}
-        {% if successes %}
-                        {%- for msg in successes %}
-                        <div class="divider"></div>
-                        <div class="row">
-                        <div class="alert alert-success col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
-                            </div>
-                        {% endfor -%}
-        {% endif %}
+      {% if successes %}
+        {%- for msg in successes %}
+          <div class="divider"></div>
+            <div class="row">
+              <div class="alert alert-success col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
+            </div>
+        {% endfor -%}
+      {% endif %}
     {% endwith %}
         
-<div class="divider"></div>
-    
-    <ul class="nav nav-tabs col-md-8 col-md-offset-2">
-        {% set count = 1 %}
-        {% for i in items %}
-        {% if count == 1 %}
-        <a href="#{{ i.id }}" class="btn active" data-toggle="tab">{{ count }}</a></li>
-        {% else %}
-        <a href="#{{ i.id }}" class="btn" data-toggle="tab">{{ count }}</a></li>
-        {% endif %}
-        {% set count = count + 1 %}
-        {% endfor %}
-        </ul>
-    <div class="tab-content">
     <div class="divider"></div>
+    
+    <!-- Course Items in tab-nav -->
+    <ul class="nav nav-tabs col-md-8 col-md-offset-2">
+        <!-- Count each Course Item, assign index number to relevant nav-tab -->
     {% set count = 1 %}
     {% for i in items %}
-    {% if count == 1 %}
-    <div class="tab-pane active" id="{{ i.id }}">
-{% if course.user_id == user.id %}
-    <div class="col-md-9 text-right">
-    <a class="btn btn-default" id="course_cog" href="{{ url_for('editItem', course_id=course.id, item_id=i.id)}}" role="button"><span class="glyphicon glyphicon-cog"></span></a>
-    </div>
-    {% endif %}
-<div class="row"><div class="col-md-12 text-center"> <h2>{{ i.name }}</h2> </div></div>
-<div class="row"><div class="col-md-12 text-center"> {{ i.description }}</div></div>
-</br>
-<div class="row">
-    <div class="col-md-12 text-center"> 
-    {% if i.youtube_url %}
-    <iframe width="420" height="315" src="https://www.youtube.com/embed/{{ i.youtube_url }}" frameborder="0" allowfullscreen></iframe>
-    {% elif i.audio_url %}  
-    <iframe width="50%" height="120" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url={{ i.audio_url }}"></iframe>
-    {% else %}
-    <p>{{ i.text }}</p>
-    {% endif %}
+      {% if count == 1 %}
+        <!-- If Course Item is first, set nav-tab to active state -->
+        <a href="#{{ i.id }}" class="btn active" data-toggle="tab">{{ count }}</a>
+      {% else %}
+        <a href="#{{ i.id }}" class="btn" data-toggle="tab">{{ count }}</a>
+      {% endif %}
+      {% set count = count + 1 %}
+    {% endfor %}
+    </ul>
+    
+    <!-- Course Items in tab-content -->
+    <div class="tab-content">
+      <div class="divider"></div>
+      <!-- Count each Course Item, put content in tab-content associated with relevant tab-nav -->
+    {% set count = 1 %}
+    {% for i in items %}
+      {% if count == 1 %}
+        <!-- If Course Item is first, set tab-pane to active state -->
+      <div class="tab-pane active" id="{{ i.id }}">
+        {% if course.user_id == user.id %}
+          <div class="col-md-9 text-right">
+            <a class="btn btn-default" id="course_cog" href="{{ url_for('editItem', course_id=course.id, item_id=i.id)}}" role="button">
+              <span class="glyphicon glyphicon-cog"></span>
+            </a>
+          </div>
+        {% endif %}
+        <div class="row">
+          <div class="col-md-12 text-center"><h2>{{ i.name }}</h2> </div>
         </div>
-    </div>
-</div> 
+        <div class="row">
+          <div class="col-md-12 text-center"> {{ i.description }}</div>
+        </div>
+      </br>
+        <div class="row">
+          <div class="col-md-12 text-center"> 
+          <!-- Check which media type Course Item is and display it -->
+        {% if i.youtube_url %}
+            <iframe width="420" height="315" src="https://www.youtube.com/embed/{{ i.youtube_url }}" frameborder="0" allowfullscreen></iframe>
+        {% elif i.audio_url %}  
+            <iframe width="50%" height="120" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url={{ i.audio_url }}"></iframe>
+        {% else %}
+            <div class="col-md-8 col-md-offset-2 text-left text-overflow">
+              <p>{{ i.text }}</p>
+            </div>
+        {% endif %}
+        </div>
+      </div>
+    </div> 
         
     {% else %}
-    <div class="tab-pane" id="{{ i.id }}">
-{% if course.user_id == user.id %}
-    <div class="col-md-9 text-right">
-    <a class="btn btn-default" id="course_cog" href="{{ url_for('editItem', course_id=course.id, item_id=i.id)}}" role="button"><span class="glyphicon glyphicon-cog"></span></a>
-    </div>
-    {% endif %}
-<div class="row"><div class="col-md-12 text-center"> <h2>{{ i.name }}</h2> </div></div>
-<div class="row"><div class="col-md-12 text-center"> {{ i.description }}</div></div>
-    </br>
-    <div class="row"><div class="col-md-12 text-center"> 
-    {% if i.youtube_url %}
-    <iframe width="420" height="315" src="https://www.youtube.com/embed/{{ i.youtube_url }}" frameborder="0" allowfullscreen></iframe>
-    {% elif i.audio_url %}  
-    <iframe width="50%" height="120" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url={{ i.audio_url }}"></iframe>
-    {% else %}
-    <div class="col-md-8 col-md-offset-2 text-left text-overflow">
-    <p>{{ i.text }}</p>
-    </div>
-    {% endif %}
-    </div>
+      <div class="tab-pane" id="{{ i.id }}">
+      {% if course.user_id == user.id %}
+        <!-- If user is course creator, make Course Item editable -->   
+        <div class="col-md-9 text-right">
+          <a class="btn btn-default" id="course_cog" href="{{ url_for('editItem', course_id=course.id, item_id=i.id)}}" role="button">
+            <span class="glyphicon glyphicon-cog"></span>
+          </a>
+        </div>
+      {% endif %}
+        <div class="row">
+          <div class="col-md-12 text-center"><h2>{{ i.name }}</h2> </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 text-center"> {{ i.description }}</div>
+        </div>
+      </br>
+        <div class="row">
+          <div class="col-md-12 text-center"> 
+      {% if i.youtube_url %}
+            <iframe width="420" height="315" src="https://www.youtube.com/embed/{{ i.youtube_url }}" frameborder="0" allowfullscreen></iframe>
+      {% elif i.audio_url %}  
+            <iframe width="50%" height="120" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url={{ i.audio_url }}"></iframe>
+      {% else %}
+            <div class="col-md-8 col-md-offset-2 text-left text-overflow">
+              <p>{{ i.text }}</p>
+            </div>
+      {% endif %}
+          </div>
         </div>
     </div> 
-    {% endif %}
-    {% set count = count + 1 %}
+      {% endif %}
+      {% set count = count + 1 %}
     {% endfor %}    
-        </div> <!-- end of tab content -->
+    </div> 
     <div class="divider"></div>
     <div class="row">
-    <div class="col-md-12 text-center"><a class="btn btn-primary" href="{{ url_for('courses')}}" role="button"><span class="glyphicon glyphicon-chevron-left"></span></a></div>
+      <div class="col-md-12 text-center">
+        <a class="btn btn-primary" href="{{ url_for('courses')}}" role="button">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+      </div>
     </div>
-</div>
+  </div>
 </body>
 </html>

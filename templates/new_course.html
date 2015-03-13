@@ -1,50 +1,47 @@
 <html>
 <head>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-    
-    <div class="container">
-        <div class="row">
-        <div class="col-md-4 col-md-offset-4">
-        <h1> New Course</h1>
-            </div>
-        </div>
+  <div class="container">
     <div class="row">
-        <div class="col-md-4 col-md-offset-4" id="this_form">
-    <form action="{{ url_for('newCourse')}}" method='post' enctype="multipart/form-data">
-    <div class="form-group">
-      
-    <input type="text" name="name" id="name" class="form-control" required="required" placeholder="Course Name">
+      <div class="col-md-4 col-md-offset-4">
+        <h1> New Course</h1>
+      </div>
     </div>
-    <div class="form-group">
-    <input type="file" name="file">
-    <p class="help-block">Add an exciting picture.</p>
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4" id="this_form">
+        <form action="{{ url_for('newCourse')}}" method='post' enctype="multipart/form-data">
+          <div class="form-group">
+            <input type="text" name="name" id="name" class="form-control" required="required" placeholder="Course Name">
+          </div>
+          <div class="form-group">
+            <input type="file" name="file">
+              <p class="help-block">Add an exciting picture.</p>
+          </div>
+          <div class="form-group">
+            <textarea type="text" rows="3" name="description" placeholder="Description" required="required" class="form-control"></textarea>
+          </div>
+          <div class="form-group">
+            <select name="category" placeholder="Category" class="form-control">
+              <option value="webdevelopment">Web Development</option>
+              <option value="education">Education</option>
+              <option value="music">Music</option>
+              <option value="illustration">Illustration</option>
+              <option value="motiongraphics">Motion Graphics</option>
+              <option value="gamedevelopment">Game Development</option>
+              <option value="crafts">Crafts</option>
+              <option value="business">Business</option>
+              <option value="video">Video</option>
+            </select>
+          </div>
+        <button class="btn btn-primary btn-block" type="submit">Create</button>
+      </form>
+      <a class="btn btn-primary"  href="{{ url_for('courses')}}" role="button"><span class="glyphicon glyphicon-chevron-left"></span></a>
     </div>
-    <div class="form-group">
-    <textarea type="text" rows="3" name="description" placeholder="Description" required="required" class="form-control"></textarea>
-    </div>
-    <div class="form-group">
-    <select name="category" placeholder="Category" class="form-control">
-        <option value="webdevelopment">Web Development</option>
-        <option value="education">Education</option>
-        <option value="music">Music</option>
-        <option value="illustration">Illustration</option>
-        <option value="motiongraphics">Motion Graphics</option>
-        <option value="gamedevelopment">Game Development</option>
-        <option value="crafts">Crafts</option>
-        <option value="business">Business</option>
-        <option value="video">Video</option>
-    </select>
-            </div>
-    <button class="btn btn-primary btn-block" type="submit">Create</button>
-    </form>
-             <a class="btn btn-primary"  href="{{ url_for('courses')}}" role="button"><span class="glyphicon glyphicon-chevron-left"></span></a>
-    </div>
-        
-    </div>
-        </div>
- </body>       
+  </div>
+</div>
+</body>       
 </html>

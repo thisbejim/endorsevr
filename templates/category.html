@@ -1,83 +1,86 @@
 <html>
 <head>
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css')}}">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-    <div class="container">
+  <div class="container">
     <div class="row">
-    <div class="col-md-12 text-center"><h1>COURSES</h1></div>
+      <div class="col-md-12 text-center">
+        <h1>COURSES</h1>
+      </div>
     </div>
     {% if user != None %}
     <div class="row">
-    <div class="col-md-2 col-md-offset-4"><a class="btn btn-default btn-block" href="{{ url_for('newCourse')}}" role="button">New course</a></div>
-    <div class="col-md-2"><a class="btn btn-default btn-block" href="{{ url_for('profile')}}" role="button">Profile</a></div>
+      <div class="col-md-2 col-md-offset-4">
+        <a class="btn btn-default btn-block" href="{{ url_for('newCourse')}}" role="button">New course</a>
+      </div>
+      <div class="col-md-2">
+        <a class="btn btn-default btn-block" href="{{ url_for('profile')}}" role="button">Profile</a>
+      </div>
     </div>
     {% else %}
     <div class="row">
-    <div class="col-md-2 col-md-offset-5"><a class="btn btn-default btn-block" href="{{ url_for('login')}}" role="button">Login</a></div>
+      <div class="col-md-2 col-md-offset-5">
+        <a class="btn btn-default btn-block" href="{{ url_for('login')}}" role="button">Login</a>
+      </div>
     </div>
     {% endif %}
-    {% with dangers = get_flashed_messages(category_filter=["danger"]) %}
-        {% if dangers %}
-                        {%- for msg in dangers %}
-                         <div class="divider"></div>
-                        <div class="row">
-                        <div class="alert alert-danger col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
-                            </div>
-                        {% endfor -%}
-        {% endif %}
-    {% endwith %}
         
+    <div class="divider"></div>
     
-    {% with successes = get_flashed_messages(category_filter=["success"]) %}
-        {% if successes %}
-                        {%- for msg in successes %}
-                        <div class="divider"></div>
-                        <div class="row">
-                        <div class="alert alert-success col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
-                            </div>
-                        {% endfor -%}
-        {% endif %}
-    {% endwith %}
-        
-        <div class="divider"></div>
     {% for i in courses %}
-        <div class="col-md-6 col-md-offset-3 coursebox">
-            <div class="row">
-                <div class="col-md-10"><h2><a href="{{ url_for('course', course_id=i.id)}}">{{ i.name }}</a></h2></div>
-                {% if i.user_id == user.id %}
-                <div class="col-md-2 text-right">
-                    <a class="btn btn-default" id="course_cog" href="{{ url_for('editCourse', course_id=i.id)}}" role="button"><span class="glyphicon glyphicon-cog"></span></a>
-                </div>
-            {% endif %}
-            </div>
-    <div class="row">
-    {% if i.picture_name != None %}
-    <div class="col-md-4 img-rounded"><img src="{{ url_for('static', filename='uploads/')}}{{i.picture_name}}" height="160px"></div>
-    {% else %}
-    <div class="col-md-4 img-rounded"><img src="{{ url_for('static', filename='uploads/mentor.jpg')}}" height="160px"></div>
-    {% endif %}
-    <div class="col-md-8 text-overflow"><h4>Course Description</h4><p>{{ i.description }}</p></div>
-    </div>
-    <div class="row">
-    <div class="col-md-6 text-primary">{{ i.category }}</div>
-    {% for a in users %} 
-    {% if a.id == i.user_id %}
-    <div class="col-md-6 text-right"><img class="img-circle" src="{{a.profile_pic}}" height="50px"></div>
-    {% endif %}
-    {% endfor %}
-    </div>
-    </div>
-    <div class="row">
-    <div class="col-md-12 text-center boxdivider"></div>
+      <div class="col-md-6 col-md-offset-3 coursebox">
+        <div class="row">
+          <div class="col-md-10">
+            <h2><a href="{{ url_for('course', course_id=i.id)}}">{{ i.name }}</a></h2>
+          </div>
+      {% if i.user_id == user.id %}
+          <div class="col-md-2 text-right">
+            <a class="btn btn-default" id="course_cog" href="{{ url_for('editCourse', course_id=i.id)}}" role="button">
+              <span class="glyphicon glyphicon-cog"></span>
+            </a>
+          </div>
+      {% endif %}
+        </div>
+        <div class="row">
+      {% if i.picture_name != None %}
+          <div class="col-md-4 img-rounded">
+            <img src="{{ url_for('static', filename='uploads/')}}{{i.picture_name}}" height="160px">
+          </div>
+      {% else %}
+          <div class="col-md-4 img-rounded">
+            <img src="{{ url_for('static', filename='uploads/mentor.jpg')}}" height="160px">
+          </div>
+      {% endif %}
+          <div class="col-md-8 text-overflow">
+            <h4>Course Description</h4>
+            <p>{{ i.description }}</p>
+          </div>
+      </div>
+        <div class="row">
+          <div class="col-md-6 text-primary">{{ i.category }}</div>
+      {% for a in users %} 
+        {% if a.id == i.user_id %}
+          <div class="col-md-6 text-right">
+            <img class="img-circle" src="{{a.profile_pic}}" height="50px">
+          </div>
+        {% endif %}
+      {% endfor %}
+        </div>
+      </div>
+        <div class="row">
+          <div class="col-md-12 text-center boxdivider"></div>
         </div>
     {% endfor %}
        
     <div class="row">
-    <div class="col-md-12 text-center"><a class="btn btn-primary" href="{{ url_for('courses')}}" role="button"><span class="glyphicon glyphicon-chevron-left"></span></a></div>
-        </div>
-    
+      <div class="col-md-12 text-center">
+        <a class="btn btn-primary" href="{{ url_for('courses')}}" role="button">
+          <span class="glyphicon glyphicon-chevron-left"></span>
+        </a>
+      </div>
+    </div>
 </body>
 </html>

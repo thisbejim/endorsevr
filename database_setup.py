@@ -7,7 +7,7 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
-
+# Setup Course Table
 class Course(Base):
     __tablename__ = 'course'
     name = Column(String(80), nullable=False)
@@ -17,6 +17,7 @@ class Course(Base):
     picture_name = Column(String(250))
     user_id = Column(Integer, ForeignKey('users.id'))
 
+# Setup CourseItem Table
 class CourseItem(Base):
     __tablename__ = 'course_item'
     name = Column(String(80), nullable=False)
@@ -30,24 +31,28 @@ class CourseItem(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     course = relationship(Course)
 
-
-class User(Base):
-    __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    username = Column(String(200))
-    profile_pic = Column(String(250))
-    github_access_token = Column(String(200))
-
-
+    # Setup API Endpoints
     @property
     def serialize(self):
         return{
             'name': self.name,
             'description': self.description,
             'id': self.id,
-            'price': self.price,
-            'course': self.course,
+            'course_id': self.course_id,
+            'category': self.category,
+            'youtube_url': self.youtube_url,
+            'audio_url': self.audio_url,
+            'text': self.text,
+            'user_id': self.user_id
         }
+
+# Setup User Table
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    username = Column(String(200))
+    profile_pic = Column(String(250))
+    github_access_token = Column(String(200))
 
 engine = create_engine('sqlite:///mentor.db')
 
