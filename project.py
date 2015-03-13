@@ -14,7 +14,7 @@ import cloudinary.api
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = 'static/uploads/'
 
-cloudinary.config(cloud_name="sample", api_key="517459437719825", api_secret="3ZMpd8piPZBL17_gR9Xx5Ff8bPY")
+cloudinary.config(cloud_name="sample", api_key="936542698847873", api_secret="URri2QHl0U8e-Q2whUjpqj7I4f8")
 
 # Set allowable MIME Types for upload
 ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
