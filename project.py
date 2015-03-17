@@ -24,7 +24,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'super secret key'
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
-
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://James:james@localhost:5432/mytest')
 app.config['GITHUB_CLIENT_ID'] = '2312fa8eaf712cf786c2'
 app.config['GITHUB_CLIENT_SECRET'] = 'ea735a886f5676eb727dd7f8deb64a444997eb7d'
 
@@ -38,7 +38,7 @@ from sqlalchemy.orm import sessionmaker
 from database_setup import Course, Base, CourseItem, User
 
 # Create Session
-engine = create_engine('sqlite:///mentor.db')
+engine = create_engine(SQLALCHEMY_DATABASE_URI)
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 db = DBSession()

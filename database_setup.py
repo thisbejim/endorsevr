@@ -53,7 +53,8 @@ class User(Base):
     username = Column(String(200))
     profile_pic = Column(String(250))
     github_access_token = Column(String(200))
-
-engine = create_engine('sqlite:///mentor.db')
+    
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://James:james@localhost:5432/mytest')
+engine = create_engine(SQLALCHEMY_DATABASE_URI)
 
 Base.metadata.create_all(engine)
