@@ -40,11 +40,10 @@
       </ul>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
-</nav>
+</nav> 
   
   
   
-  <div class="bigdivider"></div>
   <div class="container">
     <div class="row">
       <div class="col-md-12 text-center" id="profile_pic">
@@ -64,7 +63,7 @@
           <div class="col-md-10">
             <h2><a href="{{ url_for('asset', asset_id=i.id)}}">{{ i.name }}</a></h2></div>
       <!-- If user is course creator, make editable -->
-      {% if i.user_id == user.id %}
+      {% if i.user_id == this_user.id %}
           <div class="col-md-2 text-right">
             <a class="btn btn-default" id="course_cog" href="{{ url_for('editAsset', asset_id=i.id)}}" role="button">
               <span class="glyphicon glyphicon-cog">
@@ -111,10 +110,12 @@
           <span class="glyphicon glyphicon-chevron-left">
           </span>
         </a>
+        {% if user.id == this_user.id %}
         <a class="btn btn-primary"  href="{{ url_for('logout')}}" role="button">
           <span class="glyphicon glyphicon-log-out">
           </span>
         </a>
+        {% endif %}
       </div>
     </div>
 </div>

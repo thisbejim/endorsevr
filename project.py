@@ -2,6 +2,7 @@ import sys
 import os
 from flask import Flask, render_template, g, request, redirect, url_for, flash, jsonify, session
 import logging
+from sqlalchemy import desc, asc
 from flask.ext.github import GitHub
 from werkzeug import secure_filename
 import requests
@@ -9,6 +10,8 @@ import json
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+import datetime
+
 
 # App Config
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -35,7 +38,7 @@ github = GitHub(app)
 # Import crud
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Course, Base, CourseItem, User
+from database_setup import Asset, Base, User
 
 # Create Session
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
@@ -44,205 +47,175 @@ DBSession = sessionmaker(bind=engine)
 db = DBSession()
 
 
-# API Endpoints
-@app.route('/courses/<int:course_id>/items/JSON')
-def CourseJSON(course_id):
-    items = db.query(CourseItem).filter_by(course_id=course_id).all()
-    return jsonify(courseItems=[i.serialize for i in items])
-
-@app.route('/courses/<int:course_id>/items/<int:item_id>/JSON')
-def CourseItemJSON(course_id, item_id):
-    thisItem = db.query(CourseItem).filter_by(id=item_id).one()
-    return jsonify(Item=[thisItem.serialize])
-
-# List all courses
+# List all assets
 @app.route('/')
-@app.route('/courses')
-def courses():
-    all_courses = db.query(Course).all()
+def index():
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
+    return render_template('index.html', user=this_user)
+
+@app.route('/assets')
+def assets():
+    all_assets = db.query(Asset).order_by(desc(Asset.time_created)).all()
     users = db.query(User).all()
     if 'user_id' in session:
         this_user = db.query(User).filter_by(id=session['user_id']).first()
     else:
         this_user = None
-    return render_template('courses.html', courses=all_courses, user=this_user, users=users)
+    return render_template('assets.html', assets=all_assets, user=this_user, users=users)
 
-# Sort courses by category
-@app.route('/courses/<course_category>/')
-def category(course_category):
-    all_courses = db.query(Course).filter_by(category=course_category).all()
+# Sort assets by category
+@app.route('/assets/<asset_category>/')
+def category(asset_category):
+    all_assets = db.query(Asset).filter_by(category=asset_category).order_by(desc(Asset.time_created)).all()
     users = db.query(User).all()
     if 'user_id' in session:
         this_user = db.query(User).filter_by(id=session['user_id']).first()
     else:
         this_user = None
-    return render_template('category.html', courses=all_courses, user=this_user, users=users)
+    return render_template('category.html', assets=all_assets, user=this_user, users=users, category=asset_category)
 
-# Create a new course
+# Sort assets by category
+@app.route('/assets/newest/')
+def newest():
+    all_assets = db.query(Asset).order_by(desc(Asset.time_created))
+    users = db.query(User).all()
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
+    return render_template('category.html', assets=all_assets, user=this_user, users=users)
+
+@app.route('/assets/oldest/')
+def oldest():
+    all_assets = db.query(Asset).order_by(asc(Asset.time_created))
+    users = db.query(User).all()
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
+    return render_template('category.html', assets=all_assets, user=this_user, users=users)
+
+@app.route('/assets/price-high/')
+def priceHigh():
+    all_assets = db.query(Asset).order_by(desc(Asset.price))
+    users = db.query(User).all()
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
+    return render_template('category.html', assets=all_assets, user=this_user, users=users)
+
+@app.route('/assets/price-low/')
+def priceLow():
+    all_assets = db.query(Asset).order_by(asc(Asset.price))
+    users = db.query(User).all()
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
+    return render_template('category.html', assets=all_assets, user=this_user, users=users)
+
+# Create a new asset
 @app.route('/new', methods=['GET', 'POST'])
-def newCourse():
+def newAsset():
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
     if checkAuth('New'):
         this_user = db.query(User).filter_by(id=session['user_id']).first()
         if request.method == 'POST':
+            thisAsset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
+                              description=request.form['description'], category=request.form['category'],
+                              user_id=this_user.id, price=request.form['price'], time_created=datetime.datetime.now(),
+                              tagline=request.form['tagline'])
+
             file = request.files['file']
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename).split(".")
                 cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
-                thisCourse = Course(name=request.form['name'], description=request.form['description'],
-                                    category=request.form['category'], picture_name=filename[0], user_id=this_user.id)
-            else:
-                thisCourse = Course(name=request.form['name'], description=request.form['description'],
-                                    category=request.form['category'], user_id=this_user.id)
-            db.add(thisCourse)
+                thisAsset.picture_name = filename[0]
+
+            if request.form['youtube']:
+                thisUrl = request.form['youtube']
+                referb = thisUrl.split("=")
+                thisAsset.youtube_url = referb[1]
+
+            db.add(thisAsset)
             db.commit()
-            flash("New Course Created", "success")
-            return redirect(url_for('courses'))
+            flash("New Asset Created", "success")
+            return redirect(url_for('profile'))
         else:
-            return render_template('new_course.html')
+            return render_template('new_asset.html', user=this_user)
     else:
         flash("Please Log In", "danger")
-        return redirect(url_for('courses'))
+        return redirect(url_for('assets'))
 
-# List unique course
-@app.route('/courses/<int:course_id>/')
-def course(course_id):
-        this_course = db.query(Course).filter_by(id=course_id).one()
-        items = db.query(CourseItem).filter_by(course_id=course_id).all()
+# List unique asset
+@app.route('/assets/<int:asset_id>/')
+def asset(asset_id):
+        users = db.query(User).all()
+        this_asset = db.query(Asset).filter_by(id=asset_id).one()
+        asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
         if 'user_id' in session:
             this_user = db.query(User).filter_by(id=session['user_id']).first()
         else:
             this_user = None
-        return render_template('course.html', course=this_course, items=items, user=this_user)
+        return render_template('asset.html', asset=this_asset, user=this_user, assetOwner=asset_owner)
 
-# Edit unique course
-@app.route('/courses/<int:course_id>/edit', methods=['GET', 'POST'])
-def editCourse(course_id):
-        this_course = db.query(Course).filter_by(id=course_id).one()
+# Edit unique asset
+@app.route('/assets/<int:asset_id>/edit', methods=['GET', 'POST'])
+def editAsset(asset_id):
+        if 'user_id' in session:
+            this_user = db.query(User).filter_by(id=session['user_id']).first()
+        else:
+            this_user = None
+        this_asset = db.query(Asset).filter_by(id=asset_id).one()
         # Check editing privileges
-        if checkAuth(course_id):
+        if checkAuth(asset_id):
             if request.method == 'POST':
                 # Check for changing attributes
                 if request.form['name']:
-                    this_course.name = request.form['name']
+                    this_asset.name = request.form['name']
                 if request.form['description']:
-                    this_course.description = request.form['description']
+                    this_asset.description = request.form['description']
                 if request.form['category']:
-                    this_course.category = request.form['category']
+                    this_asset.category = request.form['category']
                 if request.files['file']:
                     file = request.files['file']
                     filename = secure_filename(file.filename).split(".")
                     cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
-                    this_course.picture_name = filename[0]
-
-                db.add(this_course)
-                db.commit()
-                flash("Course Edited", "success")
-                return redirect(url_for('courses'))
-            else:
-                return render_template('edit.html', course=this_course)
-        else:
-            flash("Access Denied", "danger")
-            return redirect(url_for('courses'))
-
-# Delete unique course
-@app.route('/courses/<int:course_id>/deletecourse/', methods=['GET', 'POST'])
-def deleteCourse(course_id):
-        if checkAuth(course_id):
-            this_course = db.query(Course).filter_by(id=course_id).one()
-            course_items = db.query(CourseItem).filter_by(course_id=course_id).all()
-            for i in course_items:
-                db.delete(i)
-            db.delete(this_course)
-            db.commit()
-            flash("Course Deleted", "danger")
-            return redirect(url_for('courses'))
-        else:
-            flash("Access Denied", "danger")
-            return redirect(url_for('courses'))
-
-# Create new course item for unique course
-@app.route('/courses/<int:course_id>/newitem/', methods=['GET', 'POST'])
-def newItem(course_id):
-    if checkAuth(course_id):
-        this_user = db.query(User).filter_by(id=session['user_id']).first()
-        if request.method == 'POST':
-            thisItem = None
-            # Check for course item media type
-            if request.form['videourl']:
-                thisUrl = request.form['videourl']
-                # Grab youtube ID from url
-                referb = thisUrl.split("=")
-                thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
-                                    category=request.form['category'], youtube_url=referb[1], user_id=this_user.id)
-            if request.form['audiourl']:
-                thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
-                                    category=request.form['category'], audio_url=request.form['audiourl'],
-                                    user_id=this_user.id)
-            if request.form['text']:
-                thisItem = CourseItem(name=request.form['name'], course_id=course_id, description=request.form['description'],
-                                    category=request.form['category'], text=request.form['text'], user_id=this_user.id)
-            db.add(thisItem)
-            db.commit()
-            flash("New Item Created", "success")
-            return redirect(url_for('course', course_id=course_id))
-        else:
-            return render_template('new_item.html', course_id=course_id)
-    else:
-        flash("Access Denied", "danger")
-        return redirect(url_for('courses'))
-
-# Edit course item for unique course
-@app.route('/courses/<int:course_id>/<int:item_id>/edititem/', methods=['GET', 'POST'])
-def editItem(course_id, item_id):
-        this_course = db.query(Course).filter_by(id=course_id).one()
-        this_item = db.query(CourseItem).filter_by(id=item_id).one()
-        if checkAuth(course_id):
-            if request.method == 'POST':
-                # Check for changing attributes
-                if request.form['name']:
-                    this_item.name = request.form['name']
-                if request.form['description']:
-                    this_item.description = request.form['description']
-                if request.form['category']:
-                    this_item.category = request.form['category']
-                if request.form['videourl']:
-                    thisUrl = request.form['videourl']
+                    this_asset.picture_name = filename[0]
+                if request.form['youtube']:
+                    thisUrl = request.form['youtube']
                     referb = thisUrl.split("=")
-                    # Set all media
-                    this_item.youtube_url = referb[1]
-                    this_item.audio_url = None
-                    this_item.text = None
-                if request.form['audiourl']:
-                    this_item.audio_url = request.form['audiourl']
-                    this_item.youtube_url = None
-                    this_item.text = None
-                if request.form['text']:
-                    this_item.text = request.form['text']
-                    this_item.audio_url = None
-                    this_item.youtube_url = None
+                    this_asset.youtube_url = referb[1]
 
-                db.add(this_item)
+                db.add(this_asset)
                 db.commit()
-                flash("Item Edited", "success")
-                return redirect(url_for('course', course_id=course_id))
+                flash("Asset Edited", "success")
+                return redirect(url_for('profile'))
             else:
-                return render_template('edit_item.html', course=this_course, item=this_item)
+                return render_template('edit.html', asset=this_asset, user=this_user)
         else:
             flash("Access Denied", "danger")
-            return redirect(url_for('courses'))
+            return redirect(url_for('assets'))
 
-# Delete course item for unique course
-@app.route('/courses/<int:course_id>/<int:item_id>/deleteitem/', methods=['GET', 'POST'])
-def deleteItem(course_id, item_id):
-        if checkAuth(course_id):
-            this_item = db.query(CourseItem).filter_by(id=item_id).one()
-            db.delete(this_item)
+# Delete unique asset
+@app.route('/assets/<int:asset_id>/deleteasset/', methods=['GET', 'POST'])
+def deleteAsset(asset_id):
+        if checkAuth(asset_id):
+            this_asset = db.query(Asset).filter_by(id=asset_id).one()
+            db.delete(this_asset)
             db.commit()
-            flash("Item Deleted", "danger")
-            return redirect(url_for('course', course_id=course_id))
+            flash("Asset Deleted", "danger")
+            return redirect(url_for('profile'))
         else:
             flash("Access Denied", "danger")
-            return redirect(url_for('courses'))
+            return redirect(url_for('assets'))
 
 # Login
 @app.route('/login')
@@ -255,7 +228,7 @@ def login():
 def authorized(oauth_token):
     if oauth_token is None:
         flash("Authentication Failed", "danger")
-        return redirect(url_for('courses'))
+        return redirect(url_for('assets'))
 
     user = db.query(User).filter_by(github_access_token=oauth_token).first()
     # If user doesn't exist, create new user
@@ -269,34 +242,47 @@ def authorized(oauth_token):
 
     session['user_id'] = user.id
     flash("Logged In", "success")
-    return redirect(url_for('courses'))
+    return redirect(url_for('assets'))
 
 # Profile page, redirect if not authenticated
 @app.route('/profile')
 def profile():
     if 'user_id' in session:
-        # Find and list all courses created by user
+        # Find and list all assets created by user
         this_user = db.query(User).filter_by(id=session['user_id']).first()
-        user_courses = db.query(Course).filter_by(user_id=this_user.id).all()
-        return render_template('profile.html', user=this_user, courses=user_courses)
+        user_assets = db.query(Asset).filter_by(user_id=this_user.id).all()
+        return render_template('profile.html', user=this_user, assets=user_assets)
     else:
         return redirect(url_for('login'))
+
+# Profile page, redirect if not authenticated
+@app.route('/user/<int:user_id>/')
+def user(user_id):
+    if 'user_id' in session:
+        # Find and list all assets created by user
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
+    owner = db.query(User).filter_by(id=user_id).first()
+    user_assets = db.query(Asset).filter_by(user_id=user_id).all()
+    return render_template('user.html', user=owner, this_user=this_user, assets=user_assets)
+
 
 # Logout
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
     flash("Logged Out", "success")
-    return redirect(url_for('courses'))
+    return redirect(url_for('assets'))
 
 # Check authentication and editing privileges
-def checkAuth(course_id):
+def checkAuth(asset_id):
     if 'user_id' in session:
-        if course_id == 'New':
+        if asset_id == 'New':
             return True
         else:
-            this_course = db.query(Course).filter_by(id=course_id).one()
-            if this_course.user_id == session['user_id']:
+            this_asset = db.query(Asset).filter_by(id=asset_id).one()
+            if this_asset.user_id == session['user_id']:
                 return True
             else:
                 return False
