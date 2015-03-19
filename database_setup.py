@@ -29,7 +29,9 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(200))
     profile_pic = Column(String(250))
-    github_access_token = Column(String(200))
+    github_id = Column(String(200))
+    twitter_id = Column(String(200))
+    facebook_id = Column(String(200))
     
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://James:james@localhost:5432/mytest')
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
