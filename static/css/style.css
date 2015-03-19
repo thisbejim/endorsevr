@@ -23,11 +23,20 @@ body {
 }
 
 .coursebox {
+  overflow:hidden;
+  padding: 0px;
+  border-radius: 15px;
   background-color: #f9f9f9;
   margin-bottom: 20px;
+  margin-right: 20px;
+  margin-left: 20px;
   border-style: solid;
     border-width: 1px;
   border-color: #e7e7e7;
+}
+
+.marginthis {
+margin-left: 1px;
 }
 
 .boxdivider {

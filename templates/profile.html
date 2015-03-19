@@ -56,54 +56,44 @@
     </div>
   
     <div class="divider"></div>
-    
-    {% for i in assets %}
-    
-      <div class="col-md-6 col-md-offset-3 coursebox">
-        <div class="row">
-          <div class="col-md-10">
-            <h2><a href="{{ url_for('asset', asset_id=i.id)}}">{{ i.name }}</a></h2></div>
-      <!-- If user is course creator, make editable -->
-      {% if i.user_id == user.id %}
-          <div class="col-md-2 text-right">
-            <a class="btn btn-default" id="course_cog" href="{{ url_for('editAsset', asset_id=i.id)}}" role="button">
-              <span class="glyphicon glyphicon-cog">
-              </span>
-            </a>
-          </div>
-      {% endif %}
-        </div>
-      
-        <div class="row">
-      <!-- Check if course has a picture, assign default picture if not -->
-      {% if i.picture_name != None %}
-            <div class="col-md-4 img-rounded">
-              <img src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" height="160px">
-            </div>
-      {% else %}
-            <div class="col-md-4 img-rounded">
-              <img src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" height="160px">
-            </div>
-      {% endif %}
-          <div class="col-md-8 text-overflow">
-            <h4>Course Description</h4>
-              <p>{{ i.description }}</p>
-          </div>
-        </div>
+          
+      <div class="row">
+        <h2>Assets</h2>
+        <div class="line"></div>
+        <div class="smalldivider"></div>
+        {% for i in assets %}
+        <div class="col-md-2 coursebox">
         
         <div class="row">
-          <div class="col-md-6 text-primary">
-            {{ i.category }}
+          <!-- Check if course has a picture, assign default picture if not -->
+      {% if i.picture_name != None %}
+          <div class="col-md-12">
+            <a href="{{ url_for('asset', asset_id=i.id)}}">
+            <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
+              </a>
+          </div>
+      {% else %}
+          <div class="col-md-12">
+            <a href="{{ url_for('asset', asset_id=i.id)}}">
+            <img class="img-responsive" src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" width="100%">
+              </a>
+          </div>
+      {% endif %}
+          </div>
+        <div class="smalldivider"></div>
+          <div class="row marginthis">
+          <div class="col-md-10">
+            <p><a href="{{ url_for('asset', asset_id=i.id)}}">{{ i.name }}</a></p>
           </div>
         </div>
-      </div>
-    
-      <div class="row">
-        <div class="col-md-12 text-center boxdivider">
+        <div class="row marginthis">
+          <div class="col-md-12">
+          <p>Price: ${{ i.price }}</p>
         </div>
+          </div>
       </div>
-    
     {% endfor %}
+          </div>
     
     <div class="row">
       <div id="profile_button"class="col-md-12 text-center">

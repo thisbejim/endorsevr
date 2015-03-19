@@ -12,9 +12,10 @@ class Asset(Base):
     __tablename__ = 'asset'
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
-    tagline = Column(String(250))
+    tag_line = Column(String(250))
     description = Column(String(2000))
     category = Column(String(250))
+    sub_category = Column(String(250))
     picture_name = Column(String(250))
     user_id = Column(Integer, ForeignKey('users.id'))
     youtube_url = Column(String(250))

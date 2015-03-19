@@ -58,7 +58,7 @@ def index():
 
 @app.route('/assets')
 def assets():
-    all_assets = db.query(Asset).order_by(desc(Asset.time_created)).all()
+    all_assets = db.query(Asset).all()
     users = db.query(User).all()
     if 'user_id' in session:
         this_user = db.query(User).filter_by(id=session['user_id']).first()
@@ -130,8 +130,9 @@ def newAsset():
         if request.method == 'POST':
             thisAsset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
                               description=request.form['description'], category=request.form['category'],
+                              sub_category=request.form['subcategory'],
                               user_id=this_user.id, price=request.form['price'], time_created=datetime.datetime.now(),
-                              tagline=request.form['tagline'])
+                              tag_line=request.form['tagline'])
 
             file = request.files['file']
             if file and allowed_file(file.filename):
@@ -220,6 +221,15 @@ def deleteAsset(asset_id):
 # Login
 @app.route('/login')
 def login():
+    if 'user_id' in session:
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    else:
+        this_user = None
+    return render_template('login.html', user=this_user)
+
+# GithubAuth
+@app.route('/githubauth')
+def githubauth():
     return github.authorize()
 
 # Auth callback
