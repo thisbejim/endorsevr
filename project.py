@@ -12,6 +12,7 @@ import cloudinary.uploader
 import cloudinary.api
 import datetime
 from flask_oauthlib.client import OAuth
+from passlib.hash import sha256_crypt
 
 
 # App Config
@@ -246,13 +247,46 @@ def deleteAsset(asset_id):
             flash("Access Denied", "danger")
             return redirect(url_for('assets'))
 
-# Login
-@app.route('/login')
-def login():
+# Register
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if 'user_id' in session:
         this_user = db.query(User).filter_by(id=session['user_id']).first()
     else:
         this_user = None
+    if request.method == 'POST':
+        hash = sha256_crypt.encrypt(request.form['password'])
+        new = User(username=request.form['username'], email=request.form['email'], password_hash=hash)
+        db.add(new)
+        db.commit()
+        session['user_id'] = new.id
+
+        flash("Register and Login Successful", "success")
+        return redirect(url_for('assets'))
+
+    return render_template('register.html', user=this_user)
+
+# Login
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if 'user_id' in session:
+        return redirect(url_for('assets'))
+    else:
+        this_user = None
+
+    if request.method == 'POST':
+        this_user = db.query(User).filter_by(username=request.form['username']).first()
+        if this_user:
+            hash = this_user.password_hash
+            if sha256_crypt.verify(request.form['password'], hash):
+                session['user_id'] = this_user.id
+                flash("Login Successful", "success")
+                return redirect(url_for('assets'))
+
+        else:
+            flash("User does not exist", "danger")
+            return redirect(url_for('assets'))
+
     return render_template('login.html', user=this_user)
 
 # Profile page, redirect if not authenticated
@@ -278,6 +312,27 @@ def user(user_id):
     user_assets = db.query(Asset).filter_by(user_id=user_id).all()
     return render_template('user.html', user=owner, this_user=this_user, assets=user_assets)
 
+@app.route('/settings', methods=['GET', 'POST'])
+def settings():
+        if 'user_id' in session:
+            this_user = db.query(User).filter_by(id=session['user_id']).first()
+        else:
+            this_user = None
+        # Check editing privileges
+        if True:
+            if request.method == 'POST':
+                # Check for changing attributes
+                if request.form['username']:
+                    this_user.username = request.form['username']
+                if request.form['website']:
+                    this_user.website = request.form['website']
+
+                db.add(this_user)
+                db.commit()
+                flash("Asset Edited", "success")
+                return redirect(url_for('profile'))
+            else:
+                return render_template('settings.html', user=this_user)
 
 # Logout
 @app.route('/logout')
@@ -301,7 +356,7 @@ def checkAuth(asset_id):
         return False
 
 # GithubAuth
-@app.route('/githubauth')
+@app.route('/github')
 def githubauth():
     return github.authorize()
 

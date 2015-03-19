@@ -28,6 +28,9 @@ class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
     username = Column(String(200))
+    email = Column(String(200))
+    password_hash = Column(String(200))
+    website = Column(String(200))
     profile_pic = Column(String(250))
     github_id = Column(String(200))
     twitter_id = Column(String(200))

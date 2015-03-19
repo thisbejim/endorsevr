@@ -5,3 +5,5 @@ gunicorn==19.2.1
 requests==2.5.3
 cloudinary==1.0.21
 psycopg2==2.6
+Flask-OAuthlib==0.9.1
+passlib==1.6.2

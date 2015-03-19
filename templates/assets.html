@@ -45,7 +45,8 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ user.username }} <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
             <li><a href="{{ url_for('profile')}}">Profile</a></li>
-            <li><a href="#">Settings</a></li>
+            <li><a href="{{ url_for('logout')}}">Logout</a></li>
+            <li><a href="{{ url_for('settings')}}">Settings</a></li>
           </ul>
         </li>
       </ul>
