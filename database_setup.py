@@ -1,6 +1,6 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float
+from sqlalchemy import Column, ForeignKey, Integer, String, DateTime, Float, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -43,7 +43,12 @@ class Endorsement(Base):
     advertiser_username = Column(String(200))
     creator_id = Column(Integer)
     creator_username = Column(String(200))
+    asset_id = Column(Integer)
+    asset_name = Column(String(200))
+    asset_picture = Column(String(200))
     texture_file = Column(String(200))
+    active = Column(Boolean, unique=False, default=True)
+    time_created = Column(DateTime)
     
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://James:james@localhost:5432/mytest')
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
