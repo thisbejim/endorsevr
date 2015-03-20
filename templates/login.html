@@ -1,61 +1,5 @@
-<html>
-<head>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-  <link rel=stylesheet href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-  <link rel=stylesheet href="{{ url_for('static', filename='css/style.css')}}">
-  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
-</head>
-<body>
- <nav class="navbar navbar-default navbar-fixed-top">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <a class="navbar-brand" href="{{ url_for('assets')}}">endorsevr</a>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li id="shift"><a href="#"><span class="sr-only">(current)</span></a></li>
-        <li><span class="sr-only">(current)</span></a></li>
-        <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Sort By</a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ url_for('newest')}}">Newest</a></li>
-            <li><a href="{{ url_for('oldest')}}">Oldest</a></li>
-            <li><a href="{{ url_for('priceHigh')}}">Price High</a></li>
-            <li><a href="{{ url_for('priceLow')}}">Price Low</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Categories</a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ url_for('newest')}}">Banner</a></li>
-            <li><a href="{{ url_for('oldest')}}">Shoes</a></li>
-            <li><a href="{{ url_for('priceHigh')}}">Shirt</a></li>
-            <li><a href="{{ url_for('priceLow')}}">Hat</a></li>
-            <li><a href="{{ url_for('profile')}}">Etc</a></li>
-            <li><a href="#">Settings</a></li>
-          </ul>
-        </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ user.username }} <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ url_for('profile')}}">Profile</a></li>
-            <li><a href="#">Settings</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-
-
-  <div class="bigdivider"></div>
+{% extends "base.html" %}
+{% block content %}
 
 
   <div class="container">
@@ -112,5 +56,5 @@
       </div>
   </div>
 </div>
-</body>
-</html>
+
+{% endblock %}

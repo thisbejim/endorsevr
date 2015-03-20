@@ -1,46 +1,5 @@
-<html>
-<head>
-  <link rel=stylesheet href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-  <link rel=stylesheet href="{{ url_for('static', filename='css/style.css')}}">
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700" rel="stylesheet" type="text/css"/>
-</head>
-<body>
-   <nav class="navbar navbar-default navbar-fixed-top">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <a class="navbar-brand" href="{{ url_for('assets')}}">endorsevr</a>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li id="shift"><a href="#"><span class="sr-only">(current)</span></a></li>
-        <li><span class="sr-only">(current)</span></a></li>
-        <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Categories<span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ url_for('newest')}}">Newest</a></li>
-            <li><a href="{{ url_for('oldest')}}">Oldest</a></li>
-            <li><a href="{{ url_for('profile')}}">Banner</a></li>
-            <li><a href="#">Settings</a></li>
-          </ul>
-        </li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ user.username }} <span class="caret"></span></a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ url_for('profile')}}">Profile</a></li>
-            <li><a href="#">Settings</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-  
-  <div class="bigdivider"></div>
+{% extends "base.html" %}
+{% block content %}
   
   <div class="container">
     <div class="row">
@@ -51,20 +10,27 @@
     <div class="row">
       <div class="col-md-4 col-md-offset-4" id="this_form">
         <form action="{{ url_for('settings')}}" method='post' enctype="multipart/form-data">
+            <div class="form-group">
+            <div class="row text-center">
+              <div class="col-md-12">
+              <img class="img-circle" align="middle" src="{{user.profile_pic}}" height="200px">
+              </div>
+            </div>
+              <p class="help-block">Profile Picture</p>
+            <input type="file" name="file">
+          </div>
           <div class="form-group">
+            <p class="help-block">Username</p>
             <input type="text" name="username" id="username" class="form-control" placeholder="{{ user.username }}">
           </div>
           <div class="form-group">
+            <p class="help-block">Website</p>
             <input type="text" name="website" id="website" class="form-control" placeholder="{{ user.website}}">
-          </div>
-          <div class="form-group">
-            <p class="help-block">Add an exciting picture.</p>
-            <input type="file" name="file">
           </div>
           <button class="btn btn-primary btn-block" type="submit">Edit</button>
         </form>
       </div>
     </div>
   </div>
-</body>       
-</html>
+
+{% endblock %}

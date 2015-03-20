@@ -35,6 +35,15 @@ class User(Base):
     github_id = Column(String(200))
     twitter_id = Column(String(200))
     facebook_id = Column(String(200))
+
+class Endorsement(Base):
+    __tablename__ = 'endorsement'
+    id = Column(Integer, primary_key=True)
+    advertiser_id = Column(Integer)
+    advertiser_username = Column(String(200))
+    creator_id = Column(Integer)
+    creator_username = Column(String(200))
+    texture_file = Column(String(200))
     
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://James:james@localhost:5432/mytest')
 engine = create_engine(SQLALCHEMY_DATABASE_URI)

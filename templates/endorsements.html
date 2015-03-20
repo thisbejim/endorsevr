@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %} 
+
+<div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        
+         <!-- Body content -->
+        <div class="row">
+          <div class="col-md-12 text-center">
+        <h1>Endorsed</h1>
+        </div>
+      <!-- Show course authoring options if authenticated, otherwise show login option -->
+   
+        
+    <div class="smalldivider"></div>
+         
+      {% for i in endorsements.endorse %}
+      <div class="row">
+        <a href="{{ url_for('category', asset_category='Clothing')}}"><h2>Clothing</h2></a>
+        <div class="line"></div>
+        <div class="smalldivider"></div>
+      
+        <div class="col-md-8 coursebox">
+        
+        <div class="row">
+          <!-- Check if course has a picture, assign default picture if not -->
+
+          <div class="col-md-12">
+            {{ i.creator_username }}
+          </div>
+        </div>
+          
+          <div class="row">
+          <div class="col-md-12">
+            {{ i.advertiser_username }}
+          </div>
+    
+          </div>
+          
+        <div class="smalldivider"></div>
+          
+      </div>
+          </div>
+          {% endfor %}
+          
+  <div class="divider"></div>
+          
+
+          
+          
+          
+          
+          
+      </div>
+    
+    
+      </div>
+  </div>
+</div>
+
+{% endblock %}
