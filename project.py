@@ -26,6 +26,7 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 app = Flask(__name__)
+
 app.config['SECRET_KEY'] = 'super secret key'
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
@@ -186,6 +187,8 @@ def newAsset():
     if checkAuth('New'):
         this_user = db.query(User).filter_by(id=session['user_id']).first()
         if request.method == 'POST':
+            #description_text = request.form['description']
+            #this_test = description_text.replace('\n', 'CHAR(13)')
             thisAsset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
                               description=request.form['description'], category=request.form['category'],
                               sub_category=request.form['subcategory'],
