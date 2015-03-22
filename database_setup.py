@@ -7,13 +7,12 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
-# Setup Course Table
+# Setup Asset Table
 class Asset(Base):
     __tablename__ = 'asset'
     name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
     tag_line = Column(String(250))
-    description = Column(String(2000))
     category = Column(String(250))
     sub_category = Column(String(250))
     picture_name = Column(String(250))
@@ -21,6 +20,13 @@ class Asset(Base):
     youtube_url = Column(String(250))
     dimensions = Column(String(250))
     price = Column(Float(scale=2))
+    time_created = Column(DateTime)
+
+class Paragraph(Base):
+    __tablename__ = 'paragraph'
+    id = Column(Integer, primary_key=True)
+    text = Column(String(2000))
+    asset_id = Column(Integer, ForeignKey('asset.id'))
     time_created = Column(DateTime)
 
 # Setup User Table
@@ -36,6 +42,7 @@ class User(Base):
     twitter_id = Column(String(200))
     facebook_id = Column(String(200))
 
+# Setup Endorsement Table
 class Endorsement(Base):
     __tablename__ = 'endorsement'
     id = Column(Integer, primary_key=True)

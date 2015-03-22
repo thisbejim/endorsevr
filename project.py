@@ -68,7 +68,7 @@ facebook = oauth.remote_app(
 # Import crud
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Asset, Base, User, Endorsement
+from database_setup import Asset, Base, User, Endorsement, Paragraph
 
 # Create Session
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
@@ -187,11 +187,12 @@ def newAsset():
     if checkAuth('New'):
         this_user = db.query(User).filter_by(id=session['user_id']).first()
         if request.method == 'POST':
-            #description_text = request.form['description']
-            #this_test = description_text.replace('\n', 'CHAR(13)')
+
+            description_text = request.form['description']
+            this_text = description_text.split('\n')
+
             thisAsset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
-                              description=request.form['description'], category=request.form['category'],
-                              sub_category=request.form['subcategory'],
+                              category=request.form['category'], sub_category=request.form['subcategory'],
                               user_id=this_user.id, price=request.form['price'], time_created=datetime.datetime.now(),
                               tag_line=request.form['tagline'])
 
@@ -208,6 +209,11 @@ def newAsset():
 
             db.add(thisAsset)
             db.commit()
+            for i in this_text:
+                this_paragraph = Paragraph(text=i, asset_id=thisAsset.id, time_created=datetime.datetime.now())
+                db.add(this_paragraph)
+                db.commit()
+
             flash("New Asset Created", "success")
             return redirect(url_for('profile'))
         else:
@@ -222,6 +228,7 @@ def asset(asset_id):
         users = db.query(User).all()
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
+        asset_p = db.query(Paragraph).filter_by(asset_id=this_asset.id).order_by(desc(Paragraph.time_created)).all()
         this_user = findUser()
         endorse = endInfo(this_user)
         if request.method == 'POST':
@@ -239,7 +246,7 @@ def asset(asset_id):
             return redirect(url_for('profile'))
 
         return render_template('asset.html', asset=this_asset, user=this_user, assetOwner=asset_owner,
-                               endorsements=endorse)
+                               endorsements=endorse, description=asset_p)
 
 # Edit unique asset
 @app.route('/assets/<int:asset_id>/edit', methods=['GET', 'POST'])
