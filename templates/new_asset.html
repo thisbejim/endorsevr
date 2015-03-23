@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 
+
+
   <div class="container">
     <div class="row">
       <div class="col-md-4 col-md-offset-4">
@@ -11,7 +13,7 @@
       <div class="col-md-4 col-md-offset-4" id="this_form">
         <form action="{{ url_for('newAsset')}}" method='post' enctype="multipart/form-data">
           <div class="form-group">
-            <input type="text" name="name" id="name" class="form-control" required="required" placeholder="Course Name">
+            <input type="text" name="name" maxlength="29" id="name" class="form-control" required="required" placeholder="Course Name">
           </div>
           <div class="form-group">
             <p class="help-block">Add a picture of your digital asset.</p>
@@ -52,13 +54,59 @@
           <div class="form-group">
             <input type="text" name="youtube" id="youtube" class="form-control" placeholder="Youtube Url">
           </div>
+          
           <div class="form-group">
-            <input type="text" name="price" id="price" class="form-control" required="required" placeholder="0.00">
+            <div class="input-group">
+            <div class="input-group-addon">$</div>
+            <input type="text" name="price" id="price" class="form-control" required="required" placeholder="Amount">
+            </div>
           </div>
         <button class="btn btn-primary btn-block" type="submit">Create</button>
       </form>
     </div>
   </div>
 </div>
+
+
+<script>
+$(document).ready(function() {
+    $('#this_form').formValidation({
+        framework: 'bootstrap',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            name: {
+                validators: {
+                    notEmpty: {
+                        message: 'The name is required'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 29,
+                        message: 'The name must be more than 6 and less than 29 characters long'
+                    },
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9_]+$/,
+                        message: 'The name can only consist of alphabetical, number and underscore'
+                    }
+                }
+            },
+            price: {
+                validators: {
+                    notEmpty: {
+                        message: 'The price is required'
+                    },
+                    numeric: {
+                        message: 'The price must be a number'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
 
 {% endblock %}

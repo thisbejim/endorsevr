@@ -43,7 +43,7 @@
               </a>
           </div>
       {% endif %}
-      <div class="col-md-6">
+      <div class="col-md-6 visible-md visible-lg">
        <div class="bigdivider"></div>
       <h3>Category: {{ asset.category }}</h3>
         <div class="divider"></div>
@@ -56,8 +56,58 @@
           Endorse
           </button>
         <div class="smalldivider"></div>
-        
-              <!-- Button trigger modal -->
+        </div>
+      </div>
+      
+       <!-- small styling -->
+      <div class="row visible-xs visible-sm">
+      <div class="col-xs-12 text-center">
+      <h3>${{ asset.price }}0</h3>
+      </div>
+      </div>
+      <div class="row visible-xs visible-sm">
+      <div class="col-xs-12 text-center">
+         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
+          Endorse
+          </button>
+        <div class="smalldivider"></div>
+        </div>
+        </div>
+              
+      <div class="row visible-xs visible-sm">
+        <div class="col-md-11"> 
+            <h2>About this Asset</h2>
+         
+          <div class="line"></div>
+
+        </div>
+      </div>
+      
+      <div class="row visible-xs visible-sm">
+      <div class="col-md-12">
+          <div class="divider"></div>
+        {% for i in description %}
+        <p>{{ i.text }}</p>
+        {% endfor %}
+      </div>
+        </div>
+        <div class="divider"></div>
+      
+        <div class="col-md-12 visible-xs visible-sm">
+
+          <div class="divider"></div>
+            <div class="row">
+            <div class="col-xs-3 col-xs-offset-8">
+              <a href="{{ url_for('user', user_id=asset.user_id)}}">
+           <img class="img-circle"  src="{{assetOwner.profile_pic}}" height="75px">
+              </a>
+            </div>
+              </div>
+                <div class="divider"></div>
+        </div>
+   
+      <!-- small styling end -->
+
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -103,9 +153,10 @@
   </div>
 </div>
       
+
       
-      </div>
-          </div>
+      
+      
       <div class="row">
       <div class="col-md-6">
         </div>
@@ -113,7 +164,9 @@
         </div>
       
       </div>
-      <div class="row">
+      
+      
+      <div class="row visible-md visible-lg">
         
         <div class="col-md-6 text-left">
           <div class="divider"></div>
@@ -152,7 +205,7 @@
         </div>
           </div>
       
-      <div class="row">
+      <div class="row visible-md visible-lg">
         <div class="col-md-12 text-left"> 
         
             <h2>About this Asset</h2>
@@ -161,7 +214,7 @@
         </div>
       </div>
       
-      <div class="row">
+      <div class="row visible-md visible-lg">
       <div class="col-md-6 text-left">
           <div class="divider"></div>
         {% for i in description %}

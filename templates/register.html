@@ -62,4 +62,45 @@
   </div>
 </div>
 
+<script>
+$(document).ready(function() {
+    $('#this_form').formValidation({
+        framework: 'bootstrap',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            email: {
+                validators: {
+                    notEmpty: {
+                        message: 'The name is required'
+                    },
+                    emailAddress: {
+                        message: 'The name must be more than 6 and less than 29 characters long'
+                    }
+                }
+            },
+          username: {
+                validators: {
+                    notEmpty: {
+                        message: 'The name is required'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 40,
+                        message: 'The name must be more than 6 and less than 50 characters long'
+                    },
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9_]+$/,
+                        message: 'The name can only consist of alphabetical, number and underscore'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
 {% endblock %}
