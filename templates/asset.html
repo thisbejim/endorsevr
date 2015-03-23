@@ -22,29 +22,7 @@
         {% endif %}
       </div>
     </div>
-    <!-- Check for new alerts -->
-    {% with dangers = get_flashed_messages(category_filter=["danger"]) %}
-      {% if dangers %}
-        {%- for msg in dangers %}
-          <div class="divider"></div>
-          <div class="row">
-            <div class="alert alert-danger col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
-          </div>
-        {% endfor -%}
-      {% endif %}
-    {% endwith %}
-        
-    
-    {% with successes = get_flashed_messages(category_filter=["success"]) %}
-      {% if successes %}
-        {%- for msg in successes %}
-          <div class="divider"></div>
-            <div class="row">
-              <div class="alert alert-success col-md-2 col-md-offset-5 text-center" role="alert">{{ msg }}</div>
-            </div>
-        {% endfor -%}
-      {% endif %}
-    {% endwith %}
+
         
     
       

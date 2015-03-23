@@ -256,6 +256,7 @@ def asset(asset_id):
 def editAsset(asset_id):
         this_user = findUser()
         endorse = endInfo(this_user)
+        paragraph = db.query(Paragraph).filter_by(asset_id=asset_id).all()
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         # Check editing privileges
         if checkAuth(asset_id):
@@ -264,7 +265,16 @@ def editAsset(asset_id):
                 if request.form['name']:
                     this_asset.name = request.form['name']
                 if request.form['description']:
-                    this_asset.description = request.form['description']
+                    for i in paragraph:
+                        db.delete(i)
+                    db.commit()
+                    description_text = request.form['description']
+                    this_text = description_text.split('\n')
+                    for i in this_text:
+                        this_paragraph = Paragraph(text=i, asset_id=asset_id, time_created=datetime.datetime.now())
+                        db.add(this_paragraph)
+                        db.commit()
+
                 if request.form['category']:
                     this_asset.category = request.form['category']
                 if request.files['file']:
@@ -277,10 +287,11 @@ def editAsset(asset_id):
                     referb = thisUrl.split("=")
                     this_asset.youtube_url = referb[1]
 
+
                 db.add(this_asset)
                 db.commit()
                 flash("Asset Edited", "success")
-                return redirect(url_for('profile'))
+                return redirect(url_for('asset',  asset_id=asset_id))
             else:
                 return render_template('edit.html', asset=this_asset, user=this_user, endorsements=endorse)
         else:
