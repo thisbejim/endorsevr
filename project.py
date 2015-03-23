@@ -291,6 +291,9 @@ def editAsset(asset_id):
 @app.route('/assets/<int:asset_id>/deleteasset/', methods=['GET', 'POST'])
 def deleteAsset(asset_id):
         if checkAuth(asset_id):
+            paragraphs = db.query(Paragraph).filter_by(asset_id=asset_id).all()
+            for i in paragraphs:
+                db.delete(i)
             this_asset = db.query(Asset).filter_by(id=asset_id).one()
             db.delete(this_asset)
             db.commit()
