@@ -126,11 +126,14 @@ def endorsements():
 
 @app.route('/assets')
 def assets():
-    all_assets = db.query(Asset).all()
+    all_assets = db.query(Asset).order_by(desc(Asset.time_created)).all()
+    categories = db.query(Asset.category).group_by(Asset.category).all()
+    print(categories)
     users = db.query(User).all()
     this_user = findUser()
     endorse = endInfo(this_user)
-    return render_template('assets.html', assets=all_assets, user=this_user, users=users, endorsements=endorse)
+    return render_template('assets.html', assets=all_assets, user=this_user, users=users, endorsements=endorse,
+                           categories=categories)
 
 # Sort assets by category
 @app.route('/assets/<asset_category>/')
