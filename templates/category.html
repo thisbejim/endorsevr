@@ -11,10 +11,11 @@
         <h1>ASSETS</h1>
         </div>
       <!-- Show course authoring options if authenticated, otherwise show login option -->
-    {% if user != None %}
+    {% if user %}
       <div class="row">
         <div class="col-md-12 text-center">
-          <a class="btn btn-default" href="{{ url_for('newAsset')}}" role="button">New Asset</a>
+          <a class="btn btn-default" href="{{ url_for('new_project')}}" role="button">New Project</a>
+           <a class="btn btn-default" href="{{ url_for('newAsset')}}" role="button">New Asset</a>
         </div>
       </div>
     {% endif %}

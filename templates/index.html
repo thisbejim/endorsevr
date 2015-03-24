@@ -1,17 +1,78 @@
 {% extends "base.html" %}
 {% block content %}
+
+
+<div class="container-fluid">
+  <div class="row">
+  <div id="yes" class="col-md-12 text-center">
+    <div class="bigdivider"></div>
+    <div class="bigdivider"></div>
+    <i class="fa fa-connectdevelop fa-5x animated fadeInUp"></i>
+    <h1 class="animated fadeInUp"> EndorseVR</h1>
+    <h3 class="animated fadeInUp">VR Content + Advertising</h1>
+    <div class="divider"></div>
+
+    <div class="row">
+      <div class="col-md-4 text-right">
+    <a href="{{ url_for('creator_register')}}"><h4>create</h4></a>
+        </div>
+      <div class="col-md-4"></div>
+      <div class="col-md-2 text-left">
+   <a href="{{ url_for('ad_register')}}"><h4> advertise</h4></a>
+      </div>
+    </div>
+    <div class="bigdivider"></div>
+    <div class="bigdivider"></div>
+    <div class="bigdivider"></div>
+  </div>
+ </div>
+  <div class="row">
+    <div class="col-md-12 text-center front">
+      <div class="col-md-3">
+        <div class="divider"></div>
+      <i class="fa fa-gamepad fa-5x"></i>
+        <p>Share Your Creations</p>
+        <div class="divider"></div>
+      </div>
+      <div class="col-md-3">
+       <div class="divider"></div>
+      <i class="fa fa-retweet fa-5x"></i>
+        <p>Connect With Advertisers</p>
+        <div class="divider"></div>
+      </div>
+      <div class="col-md-3">
+       <div class="divider"></div>
+      <i class="fa fa-cloud fa-5x"></i>
+        <p>Combine Content</p>
+        <div class="divider"></div>
+      </div>
+      <div class="col-md-3">
+       <div class="divider"></div>
+      <i class="fa fa-money fa-5x"></i>
+        <p>Monitize Your Work</p>
+        <div class="divider"></div>
+      </div>
+    </div>
+  </div>
   
-<div class="row">
-<div class="col-md-12">
-  <img class="img-responsive" src="http://placehold.it/500x150" width="100%">
-   <a class="btn btn-default" href="{{ url_for('newAsset')}}" role="button">Create</a>
-  <a class="btn btn-default" href="{{ url_for('newAsset')}}" role="button">Endorse</a>
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <div class="bigdivider"></div>
+      <div class="bigdivider"></div>
+      <div class="divider"></div>
+      <h1>Monitize Your Work Your Way</h1>
+      
+      <div class="divider"></div>
+      <div class="divider"></div>
+      <div class="divider"></div>
+      <div class="divider"></div>
+      <div class="divider"></div>
+      <div class="divider"></div>
+    </div>
   </div>
+
 </div>
-<div class="row">
-<div class="col-md-12">
-  <img class="img-responsive" src="http://placehold.it/250/D00000" width="100%">
-  </div>
-</div>
+
+
 
 {% endblock %}

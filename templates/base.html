@@ -22,25 +22,29 @@
  <nav class="navbar navbar-default navbar-fixed-top">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
-      <a class="navbar-brand" href="{{ url_for('assets')}}">endorsevr</a>
+      <a class="navbar-brand" href="{{ url_for('index')}}">endorsevr</a>
     </div>
    <div class="container">
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Sort By</a>
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Projects</a>
           <ul class="dropdown-menu" role="menu">
+            <li><a href="{{ url_for('projects')}}">All</a></li>
+            <li><a href="{{ url_for('newest_projects')}}">Newest</a></li>
+            <li><a href="{{ url_for('oldest_projects')}}">Oldest</a></li>
+          </ul>
+        </li>
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Assets</a>
+          <ul class="dropdown-menu" role="menu">
+            <li><a href="{{ url_for('assets')}}">All</a></li>
             <li><a href="{{ url_for('newest')}}">Newest</a></li>
             <li><a href="{{ url_for('oldest')}}">Oldest</a></li>
             <li><a href="{{ url_for('priceHigh')}}">Price High</a></li>
             <li><a href="{{ url_for('priceLow')}}">Price Low</a></li>
-          </ul>
-        </li>
-        <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">Categories</a>
-          <ul class="dropdown-menu" role="menu">
-            <li><a href="{{ url_for('category', asset_category='Clothing')}}">Clothing</a></li>
+             <li><a href="{{ url_for('category', asset_category='Clothing')}}">Clothing</a></li>
             <li><a href="{{ url_for('category', asset_category='Automobiles')}}">Automobiles</a></li>
             <li><a href="{{ url_for('category', asset_category='Buildings')}}">Buildings</a></li>
             <li><a href="{{ url_for('category', asset_category='Billboards')}}">Billboards</a></li>
@@ -82,6 +86,7 @@
           <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{ user.username }} <span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
             <li><a href="{{ url_for('profile')}}">Profile</a></li>
+            <li><a href="{{ url_for('new_project')}}">New Project</a></li>
             <li><a href="{{ url_for('newAsset')}}">New Asset</a></li>
             <li><a href="{{ url_for('settings')}}">Settings</a></li>
             <li><a href="{{ url_for('logout')}}">Logout</a></li>
@@ -90,6 +95,7 @@
         
       </ul>
       {% else %}
+      <li><a href="{{ url_for('register')}}">Register</a></li>
       <li><a href="{{ url_for('login')}}">Login</a></li>
       {% endif %}
     </div><!-- /.navbar-collapse -->

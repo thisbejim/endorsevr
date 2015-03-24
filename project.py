@@ -68,7 +68,7 @@ facebook = oauth.remote_app(
 # Import crud
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Asset, Base, User, Endorsement, Paragraph
+from database_setup import Asset, Base, User, Endorsement, Paragraph, Project
 
 # Create Session
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
@@ -135,6 +135,36 @@ def assets():
     return render_template('assets.html', assets=all_assets, user=this_user, users=users, endorsements=endorse,
                            categories=categories)
 
+@app.route('/projects')
+def projects():
+    all_projects = db.query(Project).order_by(desc(Project.time_created)).all()
+    categories = db.query(Project.category).group_by(Project.category).all()
+    users = db.query(User).all()
+    this_user = findUser()
+    endorse = endInfo(this_user)
+    return render_template('projects.html', projects=all_projects, user=this_user, users=users, endorsements=endorse,
+                           categories=categories)
+
+@app.route('/newest_projects')
+def newest_projects():
+    all_projects = db.query(Project).order_by(desc(Project.time_created)).all()
+    categories = db.query(Project.category).group_by(Project.category).all()
+    users = db.query(User).all()
+    this_user = findUser()
+    endorse = endInfo(this_user)
+    return render_template('projects.html', projects=all_projects, user=this_user, users=users, endorsements=endorse,
+                           categories=categories)
+
+@app.route('/oldest_projects')
+def oldest_projects():
+    all_projects = db.query(Project).order_by(asc(Project.time_created)).all()
+    categories = db.query(Project.category).group_by(Project.category).all()
+    users = db.query(User).all()
+    this_user = findUser()
+    endorse = endInfo(this_user)
+    return render_template('projects.html', projects=all_projects, user=this_user, users=users, endorsements=endorse,
+                           categories=categories)
+
 # Sort assets by category
 @app.route('/assets/<asset_category>/')
 def category(asset_category):
@@ -182,9 +212,10 @@ def priceLow():
     return render_template('category.html', assets=all_assets, user=this_user, users=users, category='Price Lowest',
                            endorsements=endorse)
 
+
 # Create a new asset
-@app.route('/new', methods=['GET', 'POST'])
-def newAsset():
+@app.route('/new_project', methods=['GET', 'POST'])
+def new_project():
     this_user = findUser()
     endorse = endInfo(this_user)
     if checkAuth('New'):
@@ -194,10 +225,49 @@ def newAsset():
             description_text = request.form['description']
             this_text = description_text.split('\n')
 
+            this_project = Project(name=request.form['name'], category=request.form['category'], user_id=this_user.id,
+                                   time_created=datetime.datetime.now(), tag_line=request.form['tagline'])
+
+            file = request.files['file']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename).split(".")
+                cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
+                this_project.picture_name = filename[0]
+
+            if request.form['youtube']:
+                this_url = request.form['youtube']
+                referb = this_url.split("=")
+                this_project.youtube_url = referb[1]
+
+            db.add(this_project)
+            db.commit()
+            for i in this_text:
+                this_paragraph = Paragraph(text=i, project_id=this_project.id, time_created=datetime.datetime.now())
+                db.add(this_paragraph)
+                db.commit()
+
+            flash("New Project Created", "success")
+            return redirect(url_for('profile'))
+        else:
+            return render_template('new_project.html', user=this_user, endorsements=endorse)
+    else:
+        flash("Please Log In", "danger")
+        return redirect(url_for('assets'))
+
+# Create a new asset
+@app.route('/new_asset', methods=['GET', 'POST'])
+def newAsset():
+    this_user = findUser()
+    projects = db.query(Project).filter_by(id=session['user_id']).all()
+    endorse = endInfo(this_user)
+    if checkAuth('New'):
+        this_user = db.query(User).filter_by(id=session['user_id']).first()
+        if request.method == 'POST':
+
             thisAsset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
                               category=request.form['category'], sub_category=request.form['subcategory'],
                               user_id=this_user.id, price=request.form['price'], time_created=datetime.datetime.now(),
-                              tag_line=request.form['tagline'])
+                              tag_line=request.form['tagline'], project_id=request.form['project'] )
 
             file = request.files['file']
             if file and allowed_file(file.filename):
@@ -212,15 +282,11 @@ def newAsset():
 
             db.add(thisAsset)
             db.commit()
-            for i in this_text:
-                this_paragraph = Paragraph(text=i, asset_id=thisAsset.id, time_created=datetime.datetime.now())
-                db.add(this_paragraph)
-                db.commit()
 
             flash("New Asset Created", "success")
             return redirect(url_for('profile'))
         else:
-            return render_template('new_asset.html', user=this_user, endorsements=endorse)
+            return render_template('new_asset.html', user=this_user, endorsements=endorse, projects=projects)
     else:
         flash("Please Log In", "danger")
         return redirect(url_for('assets'))
@@ -231,7 +297,6 @@ def asset(asset_id):
         users = db.query(User).all()
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
-        asset_p = db.query(Paragraph).filter_by(asset_id=this_asset.id).order_by(desc(Paragraph.time_created)).all()
         this_user = findUser()
         endorse = endInfo(this_user)
         if request.method == 'POST':
@@ -249,7 +314,20 @@ def asset(asset_id):
             return redirect(url_for('profile'))
 
         return render_template('asset.html', asset=this_asset, user=this_user, assetOwner=asset_owner,
-                               endorsements=endorse, description=asset_p)
+                               endorsements=endorse)
+
+# List unique asset
+@app.route('/projects/<int:project_id>/')
+def project(project_id):
+
+        this_project = db.query(Project).filter_by(id=project_id).one()
+        asset_owner = db.query(User).filter_by(id=this_project.user_id).one()
+        project_assets = db.query(Asset).filter_by(project_id=project_id).all()
+        asset_p = db.query(Paragraph).filter_by(project_id=this_project.id).order_by(desc(Paragraph.time_created)).all()
+        this_user = findUser()
+        endorse = endInfo(this_user)
+        return render_template('project.html', project=this_project, user=this_user, assetOwner=asset_owner,
+                               endorsements=endorse, description=asset_p, assets=project_assets)
 
 # Edit unique asset
 @app.route('/assets/<int:asset_id>/edit', methods=['GET', 'POST'])
@@ -315,8 +393,15 @@ def deleteAsset(asset_id):
             return redirect(url_for('assets'))
 
 # Register
-@app.route('/register', methods=['GET', 'POST'])
+
+@app.route('/register')
 def register():
+    this_user = findUser()
+    endorse = endInfo(this_user)
+    return render_template('register.html', user=this_user, endorsements=endorse)
+
+@app.route('/creator_register', methods=['GET', 'POST'])
+def creator_register():
     this_user = findUser()
     endorse = endInfo(this_user)
     if request.method == 'POST':
@@ -329,7 +414,23 @@ def register():
         flash("Register and Login Successful", "success")
         return redirect(url_for('assets'))
 
-    return render_template('register.html', user=this_user, endorsements=endorse)
+    return render_template('creator_register.html', user=this_user, endorsements=endorse)
+
+@app.route('/advertiser_register', methods=['GET', 'POST'])
+def ad_register():
+    this_user = findUser()
+    endorse = endInfo(this_user)
+    if request.method == 'POST':
+        hash = sha256_crypt.encrypt(request.form['password'])
+        new = User(username=request.form['username'], email=request.form['email'], password_hash=hash, advertiser=True)
+        db.add(new)
+        db.commit()
+        session['user_id'] = new.id
+
+        flash("Register and Login Successful", "success")
+        return redirect(url_for('assets'))
+
+    return render_template('advertiser_register.html', user=this_user, endorsements=endorse)
 
 # Login
 @app.route('/login', methods=['GET', 'POST'])
@@ -359,7 +460,9 @@ def profile():
         this_user = db.query(User).filter_by(id=session['user_id']).first()
         endorse = endInfo(this_user)
         user_assets = db.query(Asset).filter_by(user_id=this_user.id).all()
-        return render_template('profile.html', user=this_user, assets=user_assets, endorsements=endorse)
+        projects = db.query(Project).filter_by(user_id=this_user.id).all()
+        return render_template('profile.html', user=this_user, assets=user_assets, endorsements=endorse,
+                               projects=projects)
     else:
         return redirect(url_for('login'))
 
@@ -370,7 +473,9 @@ def user(user_id):
     endorse = endInfo(this_user)
     owner = db.query(User).filter_by(id=user_id).first()
     user_assets = db.query(Asset).filter_by(user_id=user_id).all()
-    return render_template('user.html', user=this_user, this_user=owner, assets=user_assets, endorsements=endorse)
+    projects = db.query(Project).filter_by(user_id=this_user.id).all()
+    return render_template('user.html', user=this_user, this_user=owner, assets=user_assets, endorsements=endorse,
+                           projects=projects)
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():

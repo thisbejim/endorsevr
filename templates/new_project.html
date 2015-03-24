@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4">
+        <h1> New Project</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4 col-md-offset-4" id="this_form">
+        <form action="{{ url_for('new_project')}}" id="form" method='post' enctype="multipart/form-data">
+          <div class="form-group">
+            <input type="text" name="name" maxlength="29" class="form-control" required="required" placeholder="Project Name">
+          </div>
+          <div class="form-group">
+            <p class="help-block">Add a picture of your project.</p>
+            <input type="file" name="file" required="required">
+          </div>
+          <div class="form-group">
+          <textarea type="text" rows="2" name="tagline" placeholder="Tagline" required="required" class="form-control"></textarea>
+          </div>
+          <div class="form-group">
+          <textarea type="text" rows="3" name="description" placeholder="Description"  required="required" class="form-control"></textarea>
+          </div>
+          
+          <div class="form-group">
+            <p class="help-block">Category</p>
+            <select name="category" placeholder="Category" class="form-control" required="required">
+              <option value="Gaming">Gaming</option>
+              <option value="Film/Animation">Film/Animation</option>
+              <option value="Education">Education</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+          <textarea type="text" rows="1" name="website" placeholder="Website"  required="required" class="form-control"></textarea>
+          </div>
+          <div class="form-group">
+            <input type="text" name="youtube" class="form-control" required="required" placeholder="Youtube Url">
+          </div>
+          
+        <button class="btn btn-primary btn-block" type="submit">Create</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#form').formValidation({
+        framework: 'bootstrap',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            name: {
+                validators: {
+                    notEmpty: {
+                        message: 'The name is required'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 30,
+                        message: 'The name must be more than 6 and less than 30 characters long'
+                    },
+                    regexp: {
+                        regexp: /^[a-zA-Z0-9_]+$/,
+                        message: 'The name can only consist of alphabetical, number and underscore'
+                    }
+                }
+            }
+        }
+    });
+});
+</script>
+
+
+
+{% endblock %}

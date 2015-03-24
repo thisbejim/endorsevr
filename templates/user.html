@@ -14,6 +14,41 @@
         <h3>{{ this_user.username }}</h3>
       </div>
     </div>
+          
+    <div class="divider"></div>
+          
+      <div class="row">
+        <h2>Projects</h2>
+        <div class="line"></div>
+        <div class="smalldivider"></div>
+        {% for i in projects %}
+        <div class="col-md-2 coursebox">
+        
+        <div class="row">
+          <!-- Check if course has a picture, assign default picture if not -->
+      {% if i.picture_name != None %}
+          <div class="col-md-12">
+            <a href="{{ url_for('project', project_id=i.id)}}">
+            <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
+              </a>
+          </div>
+      {% else %}
+          <div class="col-md-12">
+            <a href="{{ url_for('project', project_id=i.id)}}">
+            <img class="img-responsive" src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" width="100%">
+              </a>
+          </div>
+      {% endif %}
+          </div>
+        <div class="smalldivider"></div>
+          <div class="row marginthis">
+          <div class="col-md-10">
+            <p><a href="{{ url_for('project', project_id=i.id)}}">{{ i.name }}</a></p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+          </div>
   
     <div class="divider"></div>
           
@@ -54,18 +89,7 @@
       </div>
     {% endfor %}
           </div>
-    
-    <div class="row">
-      <div id="profile_button"class="col-md-12 text-center">
-        {% if user.id == this_user.id %}
-        <a class="btn btn-primary"  href="{{ url_for('logout')}}" role="button">
-          <span class="glyphicon glyphicon-log-out">
-          </span>
-        </a>
-        {% endif %}
-      </div>
-    </div>
-          
+
           
       </div>
         </div>

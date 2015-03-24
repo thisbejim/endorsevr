@@ -69,9 +69,9 @@ margin-left:5px
   padding-left: 0px;
   border-radius: 15px;
   background-color: #f9f9f9;
-  margin-bottom: 16px;
-  margin-right: 16px;
-  margin-left: 16px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  margin-left: 10px;
   border-style: solid;
     border-width: 1px;
   border-color: #e7e7e7;
@@ -80,7 +80,7 @@ margin-left:5px
 }
       
       #assetmargin{
-margin-left:50px
+margin-left:20px
 }
     
 
@@ -94,16 +94,18 @@ margin-left:50px
   padding: 0px;
   border-radius: 15px;
   background-color: #f9f9f9;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   margin-right: 20px;
-  margin-left: 20px;
+  margin-left: 15px;
   border-style: solid;
     border-width: 1px;
   border-color: #e7e7e7;
         text-overflow: ellipsis;
         white-space:nowrap;
 }
-
+ #assetmargin{
+margin-left:20px
+}
 	}
 
 
@@ -173,6 +175,9 @@ margin-left: 1px;
 .line{
     border-bottom: 1px solid #ccc;
 }
+.line_vertical{
+    border-right: 1px solid #ccc;
+}
 
 #mymodal{
     margin-top: 350px;
@@ -182,6 +187,21 @@ margin-left: 1px;
     float: none;
     margin: 0 auto;
 }
+
+#yes{
+background: url('https://d80b0eibbxq90.cloudfront.net/images/headers/header__homepage--mega-76656de4.jpg') no-repeat center center fixed;
+linear-gradient(to right, rgb(31, 79, 127) 10%, rgb(125, 119, 90) 50%, rgb(220, 138, 44) 90%); 
+  opacity:0.8;
+  background-size: cover;
+  color: aliceblue;
+  top: -20;
+}
+
+.front{
+background-color: #f9f9f9;
+  top: -20;
+}
+
 
 
 

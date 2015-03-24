@@ -7,6 +7,19 @@ from sqlalchemy import create_engine
 
 Base = declarative_base()
 
+# Setup Project Table
+class Project(Base):
+    __tablename__ = 'project'
+    name = Column(String(80), nullable=False)
+    id = Column(Integer, primary_key=True)
+    tag_line = Column(String(250))
+    category = Column(String(250))
+    picture_name = Column(String(250))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    youtube_url = Column(String(250))
+    time_created = Column(DateTime)
+    approved = Column(Boolean, unique=False, default=False)
+
 # Setup Asset Table
 class Asset(Base):
     __tablename__ = 'asset'
@@ -17,6 +30,7 @@ class Asset(Base):
     sub_category = Column(String(250))
     picture_name = Column(String(250))
     user_id = Column(Integer, ForeignKey('users.id'))
+    project_id = Column(Integer, ForeignKey('project.id'))
     youtube_url = Column(String(250))
     dimensions = Column(String(250))
     price = Column(Float(scale=2))
@@ -26,7 +40,7 @@ class Paragraph(Base):
     __tablename__ = 'paragraph'
     id = Column(Integer, primary_key=True)
     text = Column(String(2000))
-    asset_id = Column(Integer, ForeignKey('asset.id'))
+    project_id = Column(Integer, ForeignKey('project.id'))
     time_created = Column(DateTime)
 
 # Setup User Table
@@ -41,6 +55,7 @@ class User(Base):
     github_id = Column(String(200))
     twitter_id = Column(String(200))
     facebook_id = Column(String(200))
+    advertiser = Column(Boolean, unique=False, default=False)
 
 # Setup Endorsement Table
 class Endorsement(Base):
