@@ -323,7 +323,7 @@ def project(project_id):
         this_project = db.query(Project).filter_by(id=project_id).one()
         asset_owner = db.query(User).filter_by(id=this_project.user_id).one()
         project_assets = db.query(Asset).filter_by(project_id=project_id).all()
-        asset_p = db.query(Paragraph).filter_by(project_id=this_project.id).order_by(desc(Paragraph.time_created)).all()
+        asset_p = db.query(Paragraph).filter_by(project_id=this_project.id).order_by(asc(Paragraph.time_created)).all()
         this_user = findUser()
         endorse = endInfo(this_user)
         return render_template('project.html', project=this_project, user=this_user, assetOwner=asset_owner,
