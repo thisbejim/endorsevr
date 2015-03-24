@@ -30,7 +30,13 @@
       <div class="divider"></div>
     <div class="row">
           <!-- Check if course has a picture, assign default picture if not -->
-      {% if asset.picture_name != None %}
+      {% if asset.youtube_url %}
+      
+      <div class="col-md-6">
+<iframe width="550" height="340" src="https://www.youtube.com/embed/asset.youtube_url" frameborder="0" allowfullscreen></iframe>
+          </div>
+      
+      {% elif asset.picture_name %}
           <div class="col-md-6">
             <a href="{{ url_for('asset', asset_id=asset.id)}}">
             <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{asset.picture_name}}">
