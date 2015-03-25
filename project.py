@@ -303,6 +303,8 @@ def asset(asset_id):
         users = db.query(User).all()
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
+
+        print(asset_owner.profile_pic)
         this_user = findUser()
         endorse = endInfo(this_user)
         if request.method == 'POST':

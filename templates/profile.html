@@ -38,7 +38,7 @@
               <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
               </a>
           <div class="line"></div>
-          <p class="boxtexttitle"><b>  <a href="{{ url_for('asset', project_id=i.id)}}">{{ i.name }}</a></b></p>
+          <p class="boxtexttitle"><b>  <a href="{{ url_for('project', project_id=i.id)}}">{{ i.name }}</a></b></p>
           <div class="line"></div>
           <p class="boxtext">${{ i.tag_line }}</p>
       </div>
