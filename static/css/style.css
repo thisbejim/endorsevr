@@ -26,6 +26,17 @@ margin-left:20px
 padding-bottom: 0px
 }
 
+#front_heading{
+  
+background-color: #8cb5c4;
+/*background: url('https://d80b0eibbxq90.cloudfront.net/images/headers/header__homepage--mega-76656de4.jpg') no-repeat center center fixed;*/
+linear-gradient(to right, rgb(31, 79, 127) 10%, rgb(125, 119, 90) 50%, rgb(220, 138, 44) 90%); 
+  opacity:1;
+  background-size: cover;
+  color: aliceblue;
+  top: -40;
+}
+
 
      .profile-img-container {
   overflow:hidden;
@@ -52,7 +63,6 @@ padding-bottom: 0px
     -webkit-column-fill: auto;
     -moz-column-count: 5;
     -moz-column-gap: 6px;
-
     column-count: 5;
     column-gap: 6px;
     column-fill: auto;
@@ -82,6 +92,7 @@ padding-bottom: 0px
 
 .projectpin {
   overflow:hidden;
+  display: inline-block;
   border-radius: 8px;
   border-style: solid;
   border-color: #d8d8d8;
@@ -170,16 +181,7 @@ margin-left: 1px;
     margin: 0 auto;
 }
 
-#front_heading{
-  
-background-color: 8cb5c4;
-/*background: url('https://d80b0eibbxq90.cloudfront.net/images/headers/header__homepage--mega-76656de4.jpg') no-repeat center center fixed;*/
-linear-gradient(to right, rgb(31, 79, 127) 10%, rgb(125, 119, 90) 50%, rgb(220, 138, 44) 90%); 
-  opacity:1;
-  background-size: cover;
-  color: aliceblue;
-  top: -20;
-}
+
 
 #homebtn{
 background:none;
@@ -192,8 +194,6 @@ color:aliceblue;
 background-color: #f9f9f9;
   top: -20;
 }
-
-
 
 
 p {word-wrap:break-word;}

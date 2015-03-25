@@ -2,7 +2,7 @@
 {% block content %}
   
   
-  
+  <div class="bigdivider"></div>
   <div class="container">
   <div class="row">
     <div class="col-md-12">
@@ -119,7 +119,7 @@
         <div class="projectpin">
 
             <a href="{{ url_for('asset', asset_id=i.id)}}">
-              <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}">
+              <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
               </a>
           <div class="line"></div>
           <p class="boxtexttitle"><b>{{ i.name }}</b></p>
