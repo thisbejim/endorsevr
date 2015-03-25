@@ -157,12 +157,19 @@ margin-left: 1px;
 #yes{
   
 background-color: 8cb5c4;
-background: url('https://d80b0eibbxq90.cloudfront.net/images/headers/header__homepage--mega-76656de4.jpg') no-repeat center center fixed;
+/*background: url('https://d80b0eibbxq90.cloudfront.net/images/headers/header__homepage--mega-76656de4.jpg') no-repeat center center fixed;*/
 linear-gradient(to right, rgb(31, 79, 127) 10%, rgb(125, 119, 90) 50%, rgb(220, 138, 44) 90%); 
-  opacity:0.8;
+  opacity:1;
   background-size: cover;
   color: aliceblue;
   top: -20;
+}
+
+#homebtn{
+background:none;
+color:aliceblue;
+    box-shadow:none;
+  border-color: #f9f9f9;
 }
 
 .front{
