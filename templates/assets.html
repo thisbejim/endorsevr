@@ -10,6 +10,7 @@
           <div class="col-md-12 text-center">
         <h1>ASSETS</h1>
         </div>
+      </div>
       <!-- Show course authoring options if authenticated, otherwise show login option -->
     {% if user %}
       <div class="row">
@@ -22,175 +23,56 @@
         
     <div class="smalldivider"></div>
           
-      {% for i in categories %}    
+      {% for a in categories %}    
       <div class="row">
         <div class="col-md-12">
-        <a href="{{ url_for('category', asset_category=i.category)}}"><h2>{{ i.category }}</h2></a>
+        <a href="{{ url_for('category', asset_category=a.category)}}"><h2>{{ a.category }}</h2></a>
           <div class="line"></div>
           <div class="smalldivider"></div>
         </div>
     
-        <div id="assetmargin" class="row visible-xs">
-          <div class="col-md-12">
-        {% set count = 0 %}
-        {% for a in assets %}
-        {% if a.category == i.category and count != 8 %}
-        <div class="col-xs-3 coursebox">
-        <div class="row">
-          <!-- Check if course has a picture, assign default picture if not -->
-      {% if a.picture_name != None %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=a.id)}}">
-            <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{a.picture_name}}" width="100%">
-              </a>
-          </div>
-      {% else %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=a.id)}}">
-            <img class="img-responsive" src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" width="100%">
-              </a>
-          </div>
-      {% endif %}
-          </div>
-        <div class="smalldivider"></div>
-          <div class="row marginthis">
-          <div class="col-md-10">
-            <p><a href="{{ url_for('asset', asset_id=a.id)}}">{{ a.name }}</a></p>
-          </div>
-        </div>
-        <div class="row marginthis">
-          <div class="col-md-12">
-          <p>Price: ${{ a.price }}</p>
-        </div>
-          </div>
-      </div>
-      {% set count = count + 1 %}
-        {% endif %}
-    {% endfor %}
-          </div>
-          </div>
-        
-        <div id="assetmargin"  class="row visible-sm">
-          <div class="col-md-12">
-        {% set count = 0 %}
-        {% for a in assets %}
-        {% if a.category == i.category and count != 10 %}
-        <div class="col-sm-2 coursebox">
-        <div class="row">
-          <!-- Check if course has a picture, assign default picture if not -->
-      {% if a.picture_name != None %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=a.id)}}">
-            <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{a.picture_name}}" width="100%">
-              </a>
-          </div>
-      {% else %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=a.id)}}">
-            <img class="img-responsive" src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" width="100%">
-              </a>
-          </div>
-      {% endif %}
-          </div>
-        <div class="smalldivider"></div>
-          <div class="row marginthis">
-          <div class="col-md-10">
-            <p><a href="{{ url_for('asset', asset_id=a.id)}}">{{ a.name }}</a></p>
-          </div>
-        </div>
-        <div class="row marginthis">
-          <div class="col-md-12">
-          <p>Price: ${{ a.price }}</p>
-        </div>
-          </div>
-      </div>
-      {% set count = count + 1 %}
-        {% endif %}
-    {% endfor %}
-          </div>
-          </div>
-        
-        <div class="row visible-md">
-          <div class="col-md-12">
-        {% set count = 0 %}
-        {% for a in assets %}
-        {% if a.category == i.category and count != 10 %}
-        <div class="col-md-2 coursebox">
-        <div class="row">
-          <!-- Check if course has a picture, assign default picture if not -->
-      {% if a.picture_name != None %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=a.id)}}">
-            <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{a.picture_name}}" width="100%">
-              </a>
-          </div>
-      {% else %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=a.id)}}">
-            <img class="img-responsive" src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" width="100%">
-              </a>
-          </div>
-      {% endif %}
-          </div>
-        <div class="smalldivider"></div>
-          <div class="row marginthis">
-          <div class="col-md-10">
-            <p><a href="{{ url_for('asset', asset_id=a.id)}}">{{ a.name }}</a></p>
-          </div>
-        </div>
-        <div class="row marginthis">
-          <div class="col-md-12">
-          <p>Price: ${{ a.price }}</p>
-        </div>
-          </div>
-      </div>
-      {% set count = count + 1 %}
-        {% endif %}
-    {% endfor %}
-          </div>
-          </div>
         
         
-         <div class="row visible-lg">
-          <div class="col-md-12">
-            
-        {% set count = 0 %}
-        {% for a in assets %}
-        {% if a.category == i.category and count != 10 %}
-        <div class="col-md-2 coursebox">
-        <div class="row">
-          <!-- Check if course has a picture, assign default picture if not -->
-      {% if a.picture_name != None %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=a.id)}}">
-            <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{a.picture_name}}" width="100%">
+
+
+      <div class="row visible-md visible-lg">
+      
+
+        <div class="col-md-12">
+          <div id="wrapper">
+    <div id="columns">
+      {% set count = 0 %}
+      {% for i in assets %}
+      {% if i.category == a.category and count != 10 %}
+        <div class="pin">
+            <a href="{{ url_for('asset', asset_id=i.id)}}">
+              <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
               </a>
-          </div>
-      {% else %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=a.id)}}">
-            <img class="img-responsive" src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" width="100%">
-              </a>
-          </div>
-      {% endif %}
-          </div>
-        <div class="smalldivider"></div>
-          <div class="row marginthis">
-          <div class="col-md-10">
-            <p><a href="{{ url_for('asset', asset_id=a.id)}}">{{ a.name }}</a></p>
-          </div>
-        </div>
-        <div class="row marginthis">
-          <div class="col-md-12">
-          <p>Price: ${{ a.price }}</p>
-        </div>
-          </div>
+          <div class="line"></div>
+          <p class="boxtexttitle"><b>  <a href="{{ url_for('asset', asset_id=i.id)}}">{{ i.name }}</a></b></p>
+          <div class="line"></div>
+          <p class="boxtext">${{ i.price }}</p>
       </div>
-      {% set count = count + 1 %}
+       {% set count = count + 1 %}
         {% endif %}
     {% endfor %}
+            </div>
           </div>
+          
+          
+
           </div>
+         
+
+
+        </div>
+        
+
+          
+     
+              </div>
+
+
         
         
           </div>
@@ -208,7 +90,6 @@
     
     
       </div>
-  </div>
-</div>
+
 
 {% endblock %}

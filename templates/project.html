@@ -109,43 +109,28 @@
          
           <div class="line"></div>
           <div class="smalldivider"></div>
-          <div id="assetmargin">
-        {% if assets %}
-        {% for i in assets %}  
-        <div class="col-md-2 coursebox">
-        <div class="row">
-          <!-- Check if course has a picture, assign default picture if not -->
-      {% if i.picture_name != None %}
-          <div class="col-md-12">
+ 
+          <div id="wrapper">
+    <div id="projectcolumns">
+      {% for i in assets %}
+        <div class="projectpin">
+             <div class="coursebox">
+          
             <a href="{{ url_for('asset', asset_id=i.id)}}">
-            <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
+              <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}">
               </a>
-          </div>
-      {% else %}
-          <div class="col-md-12">
-            <a href="{{ url_for('asset', asset_id=i.id)}}">
-            <img class="img-responsive" src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" width="100%">
-              </a>
-          </div>
-      {% endif %}
-          </div>
-  
+          <div class="line"></div>
+          <p class="boxtexttitle"><b>{{ i.name }}</b></p>
+          <div class="line"></div>
+          <p class="boxtext">${{ i.price }}</p>
       </div>
-  
-        {% endfor %}
-        {% else %}
-            {% if project.user_id == user.id %}
-            <div class="col-md-6">
-              {{ assetOwner.username }}, please add assets.
+        </div>
+      {% endfor %}
             </div>
-            {% else %}
-            <div class="col-md-6">
-              No addets yet!
-            </div>
-            {% endif %}
-          {% endif %}
-       
-            </div>
+          </div>
+          
+          
+
           </div>
          
       </div>

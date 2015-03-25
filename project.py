@@ -98,6 +98,11 @@ def endInfo(user):
             endorsements = db.query(Endorsement).filter_by(creator_id=user.id).order_by(desc(Endorsement.time_created)).all()
             this_end = Endorse(user, num, endorsements)
             return this_end
+        elif db.query(Endorsement).filter_by(advertiser_id=user.id).all():
+            num = db.query(Endorsement).filter_by(active=True).count()
+            endorsements = db.query(Endorsement).filter_by(advertiser_id=user.id).order_by(desc(Endorsement.time_created)).all()
+            this_end = Endorse(user, num, endorsements)
+            return this_end
         else:
             return None
     else:
@@ -109,7 +114,8 @@ def endInfo(user):
 @app.route('/')
 def index():
     this_user = findUser()
-    return render_template('index.html', user=this_user)
+    endorse = endInfo(this_user)
+    return render_template('index.html', user=this_user, endorsements=endorse)
 
 @app.route('/endorsements', methods=['GET', 'POST'])
 def endorsements():
@@ -393,44 +399,23 @@ def deleteAsset(asset_id):
             return redirect(url_for('assets'))
 
 # Register
-
-@app.route('/register')
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     this_user = findUser()
     endorse = endInfo(this_user)
+    if request.method == 'POST':
+        hash = sha256_crypt.encrypt(request.form['password'])
+        new = User(username=request.form['username'], email=request.form['email'], password_hash=hash,
+                   advertiser=request.form['inlineRadioOptions'])
+        db.add(new)
+        db.commit()
+        session['user_id'] = new.id
+
+        flash("Register and Login Successful", "success")
+        return redirect(url_for('assets'))
+
     return render_template('register.html', user=this_user, endorsements=endorse)
 
-@app.route('/creator_register', methods=['GET', 'POST'])
-def creator_register():
-    this_user = findUser()
-    endorse = endInfo(this_user)
-    if request.method == 'POST':
-        hash = sha256_crypt.encrypt(request.form['password'])
-        new = User(username=request.form['username'], email=request.form['email'], password_hash=hash)
-        db.add(new)
-        db.commit()
-        session['user_id'] = new.id
-
-        flash("Register and Login Successful", "success")
-        return redirect(url_for('assets'))
-
-    return render_template('creator_register.html', user=this_user, endorsements=endorse)
-
-@app.route('/advertiser_register', methods=['GET', 'POST'])
-def ad_register():
-    this_user = findUser()
-    endorse = endInfo(this_user)
-    if request.method == 'POST':
-        hash = sha256_crypt.encrypt(request.form['password'])
-        new = User(username=request.form['username'], email=request.form['email'], password_hash=hash, advertiser=True)
-        db.add(new)
-        db.commit()
-        session['user_id'] = new.id
-
-        flash("Register and Login Successful", "success")
-        return redirect(url_for('assets'))
-
-    return render_template('advertiser_register.html', user=this_user, endorsements=endorse)
 
 # Login
 @app.route('/login', methods=['GET', 'POST'])
@@ -489,6 +474,12 @@ def settings():
                     this_user.username = request.form['username']
                 if request.form['website']:
                     this_user.website = request.form['website']
+                if request.files['file']:
+                    file = request.files['file']
+                    filename = secure_filename(file.filename).split(".")
+                    cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
+                    print(filename[0])
+                    this_user.profile_pic = filename[0]
 
                 db.add(this_user)
                 db.commit()
