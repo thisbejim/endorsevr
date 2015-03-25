@@ -198,9 +198,10 @@
           <div class="smalldivider"></div>
           <div class="row">
             <div class="col-md-12">
-              <a href="{{ url_for('user', user_id=asset.user_id)}}">
-           <img class="img-circle"  src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{assetOwner.profile_pic}}" height="75px"> 
-              </a>
+                     <div class="project-img-container">
+          <a href="{{ url_for('user', user_id=assetOwner.id)}}">
+        <img class="img-respnsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{assetOwner.profile_pic}}" width="100px" height="100px"></a>
+          </div>
             </div>
           </div>
         </div>

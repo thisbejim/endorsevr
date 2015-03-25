@@ -233,7 +233,7 @@ def new_project():
 @app.route('/new_asset', methods=['GET', 'POST'])
 def newAsset():
     this_user = findUser()
-    projects = db.query(Project).filter_by(id=session['user_id']).all()
+    projects = db.query(Project).filter_by(user_id=session['user_id']).all()
     endorse = endInfo(this_user)
     if checkAuth('New'):
         this_user = db.query(User).filter_by(id=session['user_id']).first()
@@ -242,8 +242,7 @@ def newAsset():
             thisAsset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
                               category=request.form['category'], sub_category=request.form['subcategory'],
                               user_id=this_user.id, price=request.form['price'], time_created=datetime.datetime.now(),
-                              tag_line=request.form['tagline'], project_id=request.form['project'] )
-
+                              tag_line=request.form['tagline'], project_id=request.form['project'])
             file = request.files['file']
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename).split(".")
@@ -273,7 +272,7 @@ def asset(asset_id):
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
 
-        print(asset_owner.profile_pic)
+
         this_user = findUser()
         endorse = endInfo(this_user)
         if request.method == 'POST':
@@ -393,6 +392,8 @@ def register():
 def login():
     this_user = findUser()
     endorse = endInfo(this_user)
+    if this_user:
+        return redirect(url_for('profile'))
     if request.method == 'POST':
         this_user = db.query(User).filter_by(username=request.form['username']).first()
         if this_user:
