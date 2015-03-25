@@ -111,11 +111,10 @@
           <div class="smalldivider"></div>
  
           <div id="wrapper">
-    <div id="columns">
+    <div id="projectcolumns">
       {% for i in assets %}
         <div class="projectpin">
-             <div class="coursebox">
-          
+
             <a href="{{ url_for('asset', asset_id=i.id)}}">
               <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}">
               </a>
@@ -123,7 +122,7 @@
           <p class="boxtexttitle"><b>{{ i.name }}</b></p>
           <div class="line"></div>
           <p class="boxtext">${{ i.price }}</p>
-      </div>
+
         </div>
       {% endfor %}
             </div>
