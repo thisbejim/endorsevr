@@ -85,7 +85,7 @@
           <div class="line"></div>
           <div class="divider"></div>
         <a href="{{ url_for('user', user_id=project.user_id)}}"> 
-          <img class="img-circle"  src="{{assetOwner.profile_pic}}" height="75px">
+          <img class="img-circle"  src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{assetOwner.profile_pic}}" height="75px">
           </a>
           <h3>Created by  {{ assetOwner.username }}</h3>
 
@@ -111,7 +111,7 @@
           <div class="smalldivider"></div>
  
           <div id="wrapper">
-    <div id="projectcolumns">
+    <div id="columns">
       {% for i in assets %}
         <div class="projectpin">
              <div class="coursebox">

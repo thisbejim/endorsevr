@@ -442,10 +442,12 @@ def login():
 def profile():
     if 'user_id' in session:
         # Find and list all assets created by user
-        this_user = db.query(User).filter_by(id=session['user_id']).first()
+        this_user = findUser()
+
         endorse = endInfo(this_user)
         user_assets = db.query(Asset).filter_by(user_id=this_user.id).all()
         projects = db.query(Project).filter_by(user_id=this_user.id).all()
+
         return render_template('profile.html', user=this_user, assets=user_assets, endorsements=endorse,
                                projects=projects)
     else:
@@ -457,8 +459,8 @@ def user(user_id):
     this_user = findUser()
     endorse = endInfo(this_user)
     owner = db.query(User).filter_by(id=user_id).first()
+    projects = db.query(Project).filter_by(user_id=user_id).all()
     user_assets = db.query(Asset).filter_by(user_id=user_id).all()
-    projects = db.query(Project).filter_by(user_id=this_user.id).all()
     return render_template('user.html', user=this_user, this_user=owner, assets=user_assets, endorsements=endorse,
                            projects=projects)
 
