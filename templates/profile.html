@@ -34,7 +34,7 @@
 
       {% for i in projects %}
         <div class="pin">
-            <a href="{{ url_for('asset', project_id=i.id)}}">
+            <a href="{{ url_for('project', project_id=i.id)}}">
               <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
               </a>
           <div class="line"></div>
