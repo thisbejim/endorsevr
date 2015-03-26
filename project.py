@@ -233,34 +233,37 @@ def new_project():
 @app.route('/new_asset', methods=['GET', 'POST'])
 def newAsset():
     this_user = findUser()
-    projects = db.query(Project).filter_by(user_id=session['user_id']).all()
+    user_projects = db.query(Project).filter_by(user_id=session['user_id']).all()
     endorse = endInfo(this_user)
     if checkAuth('New'):
-        this_user = db.query(User).filter_by(id=session['user_id']).first()
-        if request.method == 'POST':
+        if user_projects:
+            if request.method == 'POST':
+                this_asset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
+                                   category=request.form['category'], sub_category=request.form['subcategory'],
+                                   user_id=this_user.id, price=request.form['price'],
+                                   time_created=datetime.datetime.now(), tag_line=request.form['tagline'],
+                                   project_id=request.form['project'])
+                file = request.files['file']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename).split(".")
+                    cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
+                    this_asset.picture_name = filename[0]
 
-            thisAsset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
-                              category=request.form['category'], sub_category=request.form['subcategory'],
-                              user_id=this_user.id, price=request.form['price'], time_created=datetime.datetime.now(),
-                              tag_line=request.form['tagline'], project_id=request.form['project'])
-            file = request.files['file']
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename).split(".")
-                cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
-                thisAsset.picture_name = filename[0]
+                if request.form['youtube']:
+                    this_url = request.form['youtube']
+                    youtube_id = this_url.split("=")
+                    this_asset.youtube_url = youtube_id[1]
 
-            if request.form['youtube']:
-                thisUrl = request.form['youtube']
-                referb = thisUrl.split("=")
-                thisAsset.youtube_url = referb[1]
+                db.add(this_asset)
+                db.commit()
 
-            db.add(thisAsset)
-            db.commit()
-
-            flash("New Asset Created", "success")
-            return redirect(url_for('profile'))
+                flash("New Asset Created", "success")
+                return redirect(url_for('profile'))
+            else:
+                return render_template('new_asset.html', user=this_user, endorsements=endorse, projects=user_projects)
         else:
-            return render_template('new_asset.html', user=this_user, endorsements=endorse, projects=projects)
+            flash("Please create a project first", "danger")
+            return redirect(url_for('new_project'))
     else:
         flash("Please Log In", "danger")
         return redirect(url_for('assets'))
@@ -271,7 +274,7 @@ def asset(asset_id):
         users = db.query(User).all()
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
-
+        this_project = db.query(Project).filter_by(id=this_asset.project_id).one()
 
         this_user = findUser()
         endorse = endInfo(this_user)
@@ -290,7 +293,7 @@ def asset(asset_id):
             return redirect(url_for('profile'))
 
         return render_template('asset.html', asset=this_asset, user=this_user, assetOwner=asset_owner,
-                               endorsements=endorse)
+                               endorsements=endorse, project=this_project)
 
 # List unique asset
 @app.route('/projects/<int:project_id>/')
@@ -374,15 +377,20 @@ def register():
     this_user = findUser()
     endorse = endInfo(this_user)
     if request.method == 'POST':
-        hash = sha256_crypt.encrypt(request.form['password'])
-        new = User(username=request.form['username'], email=request.form['email'], password_hash=hash,
+        not_unique = db.query(User).filter_by(username=request.form['username']).all()
+        if not_unique:
+            flash("Register failed, username not unique", "danger")
+            return redirect(url_for('register'))
+        else:
+            hash = sha256_crypt.encrypt(request.form['password'])
+            new = User(username=request.form['username'], email=request.form['email'], password_hash=hash,
                    advertiser=request.form['inlineRadioOptions'])
-        db.add(new)
-        db.commit()
-        session['user_id'] = new.id
+            db.add(new)
+            db.commit()
+            session['user_id'] = new.id
 
-        flash("Register and Login Successful", "success")
-        return redirect(url_for('assets'))
+            flash("Register and Login Successful", "success")
+            return redirect(url_for('assets'))
 
     return render_template('register.html', user=this_user, endorsements=endorse)
 
@@ -402,10 +410,13 @@ def login():
                 session['user_id'] = this_user.id
                 flash("Login Successful", "success")
                 return redirect(url_for('assets'))
+            else:
+                flash("Incorrect Username or Password", "danger")
+                return redirect(url_for('login'))
 
         else:
             flash("User does not exist", "danger")
-            return redirect(url_for('assets'))
+            return redirect(url_for('login'))
 
     return render_template('login.html', user=this_user, endorsements=endorse)
 

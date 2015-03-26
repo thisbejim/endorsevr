@@ -30,29 +30,32 @@
         
           <div class="form-group">
             <p class="help-block">Category</p>
-            <select name="category" placeholder="Category" class="form-control">
-              <option value="Clothing">Clothing</option>
-              <option value="Automobiles">Automobiles</option>
-              <option value="Buildings">Buildings</option>
-              <option value="Tattoos">Tattoos</option>
-              <option value="Billboards">Billboards</option>
-              <option value="Miscellaneous">Miscellaneous</option>
+            <select name="category" id="category" placeholder="Category" class="form-control">
+              <option id="Clothing" value="Clothing">Clothing</option>
+              <option id="Vehicles" value="Vehicles">Vehicles</option>
+              <option id="Buildings" value="Buildings">Buildings</option>
+              <option id="Tattoos" value="Tattoos">Tattoos</option>
+              <option id="Adverts" value="Adverts">Adverts</option>
+              <option id="Miscellaneous" value="Miscellaneous">Miscellaneous</option>
             </select>
           </div>
           
-          <div class="form-group">
+
+          <div class="form-group" id="sub-form"> 
             <p class="help-block">SubCategory</p>
             <select name="subcategory" class="form-control">
-              <option value="Billboard">Shirt</option>
-              <option value="Posters">Shoes</option>
-              <option value="Shoes">Pants</option>
-              <option value="Shirt">Hat</option>
+              <option id="sub-1" value=""></option>
+              <option id="sub-2" value=""></option>
+              <option  id="sub-3" value=""></option>
+              <option  id="sub-4" value=""></option>
             </select>
           </div>
+          
+          
           
           <div class="form-group">
             <p class="help-block">Project</p>
-            <select name="project" class="form-control" required="required">
+            <select name="project" id="project" class="form-control" required="required">
               {% for i in projects %}
               <option value="{{i.id}}">{{i.name}}</option>
               {% endfor %}
@@ -111,6 +114,79 @@ $(document).ready(function() {
         }
     });
 });
+  
+  $(function() {
+  $("#category").change(function() {
+  if ($("#Clothing").is(":selected")) {
+      $("#sub-form").show();
+      $("#sub-1").html("Shoes");
+      $("#sub-1").attr("value","Shoes");
+      $("#sub-2").html("Hat");
+      $("#sub-2").attr("value","Hat");
+      $("#sub-3").html("Shirt");
+      $("#sub-3").attr("value","Shirt");
+      $("#sub-4").html("Pants");
+      $("#sub-4").attr("value","Pants");
+      
+    } else if ($("#Vehicles").is(":selected")){
+      $("#sub-form").show();
+      $("#sub-1").html("Car");
+      $("#sub-1").attr("value","Car");
+      $("#sub-2").html("Bus");
+      $("#sub-2").attr("value","Bus");
+      $("#sub-3").html("Aircraft");
+      $("#sub-3").attr("value","Aircraft");
+      $("#sub-4").html("Train");
+      $("#sub-4").attr("value","Train");
+      
+    } else if ($("#Buildings").is(":selected")){
+      $("#sub-form").show();
+      $("#sub-1").html("Sky Scraper");
+      $("#sub-1").attr("value","Sky Scraper");
+      $("#sub-2").html("Residential");
+      $("#sub-2").attr("value","Residential");
+      $("#sub-3").html("Business");
+      $("#sub-3").attr("value","Business");
+      $("#sub-4").html("Train");
+      $("#sub-4").attr("value","Train");
+      
+    } else if ($("#Tattoos").is(":selected")){
+      $("#sub-form").show();
+      $("#sub-1").html("Arm");
+      $("#sub-1").attr("value","Arm");
+      $("#sub-2").html("Head");
+      $("#sub-2").attr("value","Head");
+      $("#sub-3").html("Leg");
+      $("#sub-3").attr("value","Leg");
+      $("#sub-4").html("Neck");
+      $("#sub-4").attr("value","Neck");
+      
+    } else if ($("#Adverts").is(":selected")){
+      $("#sub-form").show();
+      $("#sub-1").html("Billboard");
+      $("#sub-1").attr("value","Billboard");
+      $("#sub-2").html("Flyer");
+      $("#sub-2").attr("value","Flyer");
+      $("#sub-3").html("Television");
+      $("#sub-3").attr("value","Television");
+      $("#sub-4").html("Graffiti");
+      $("#sub-4").attr("value","Graffiti");
+    }
+      else if ($("#Miscellaneous").is(":selected")){
+      $("#sub-form").hide();
+      $("#sub-1").html("");
+      $("#sub-1").attr("value","");
+      $("#sub-2").attr("value","");
+      $("#sub-2").html("");
+      $("#sub-3").attr("value","");
+      $("#sub-3").html("");
+      $("#sub-4").attr("value","");
+      $("#sub-4").html("");
+    }
+    
+  }).trigger('change');
+});
+  
 </script>
 
 

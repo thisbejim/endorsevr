@@ -9,7 +9,6 @@
     <div class="row">
       <div class="col-md-12 text-center">
         <h1>{{ asset.name }}</h1>
-        <p> Created by {{ assetOwner.username }}</p>
       </div>
     </div>
      <!-- If user is course creator, make course content editable -->   
@@ -50,8 +49,10 @@
           </div>
       {% endif %}
       <div class="col-md-6 visible-md visible-lg">
-       <div class="bigdivider"></div>
-      <h3>Category: {{ asset.category }}</h3>
+
+        <h3>From project <a href="{{ url_for('project', project_id=project.id)}}">{{ project.name }}</a></h3>
+        <div class="divider"></div>
+        <h3>Category: {{ asset.category }}</h3>
         <div class="divider"></div>
         <h3>Dimensions: {{ asset.dimensions }}</h3>
         
@@ -64,51 +65,7 @@
         <div class="smalldivider"></div>
         </div>
       </div>
-      
-       <!-- small styling -->
-      <div class="row visible-xs visible-sm">
-      <div class="col-xs-12 text-center">
-      <h3>${{ asset.price }}0</h3>
-      </div>
-      </div>
-      <div class="row visible-xs visible-sm">
-      <div class="col-xs-12 text-center">
-         <button type="button" class="btn btn-success" data-toggle="modal" data-target="#myModal">
-          Endorse
-          </button>
-        <div class="smalldivider"></div>
-        </div>
-        </div>
-              
-      <div class="row visible-xs visible-sm">
-        <div class="col-md-11"> 
-            <h2>About this Asset</h2>
-         
-          <div class="line"></div>
-
-        </div>
-      </div>
-      
-      <div class="row visible-xs visible-sm">
-
-        </div>
-        <div class="divider"></div>
-      
-        <div class="col-md-12 visible-xs visible-sm">
-
-          <div class="divider"></div>
-            <div class="row">
-            <div class="col-xs-3 col-xs-offset-8">
-              <a href="{{ url_for('user', user_id=asset.user_id)}}">
-           <img class="img-circle"  src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{assetOwner.profile_pic}}" height="75px">
-              </a>
-            </div>
-              </div>
-                <div class="divider"></div>
-        </div>
-   
-      <!-- small styling end -->
-
+  
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
@@ -146,14 +103,22 @@
         
       </div>
       <div class="modal-footer">
+        {% if user %}
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="submit" class="btn btn-primary">Purchase</button>
+        {% else %}
+        <fieldset disabled>
+        <p class="help-block">Please log in to endorse.</p>
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Purchase</button>
+        </fieldset>
+        {% endif %}
         </form>
       </div>
     </div>
   </div>
 </div>
-      
+ <!-- Modal end -->     
 
       
       
@@ -169,9 +134,9 @@
       
       <div class="row visible-md visible-lg">
         
-        <div class="col-md-6 text-left">
+        <div class="col-md-6 text-center">
           <div class="divider"></div>
-           <h4>{{ asset.tag_line }}</h4>
+           <h4><i>{{ asset.tag_line }}</i></h4>
           </div>
         <div class="col-md-2">
 
@@ -210,7 +175,7 @@
       <div class="row visible-md visible-lg">
         <div class="col-md-12 text-left"> 
         
-            <div class="divider"></div>
+            <div class="smalldivider"></div>
          
           <div class="line"></div>
         </div>
