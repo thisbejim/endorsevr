@@ -26,6 +26,10 @@ margin-left:20px
 padding-bottom: 0px
 }
 
+.title{
+font-size: 350%
+}
+
 #front_heading{
   
 background-color: #8cb5c4;
@@ -33,7 +37,7 @@ background-color: #8cb5c4;
 linear-gradient(to right, rgb(31, 79, 127) 10%, rgb(125, 119, 90) 50%, rgb(220, 138, 44) 90%); 
   opacity:1;
   background-size: cover;
-  color: aliceblue;
+  color: white;
   top: -40;
 }
 
@@ -185,9 +189,9 @@ margin-left: 1px;
 
 #homebtn{
 background:none;
-color:aliceblue;
+color:white;
     box-shadow:none;
-  border-color: #f9f9f9;
+  border-color: white;
   
   -webkit-transition: background .5s ease-out;
   -moz-transition: background .5s ease-out;
@@ -203,6 +207,7 @@ background: rgba(210, 210, 210, 0.3);
 .front{
 background-color: #f9f9f9;
   top: -20;
+  
 }
 
 
