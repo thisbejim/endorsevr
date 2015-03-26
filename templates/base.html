@@ -7,7 +7,7 @@
   
   
   <link rel=stylesheet href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-  <link rel=stylesheet href="{{ url_for('static', filename='css/animate.css')}}">
+
   <link rel=stylesheet href="{{ url_for('static', filename='css/style.css')}}">
   
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
@@ -55,7 +55,7 @@
     {% with dangers = get_flashed_messages(category_filter=["danger"]) %}
         {% if dangers %}
           {%- for msg in dangers %}
-            <p class="animated fadeInDown navbar-text">{{ msg }}</p>
+            <p class="fadeIn navbar-text">{{ msg }}</p>
           {% endfor -%}
         {% endif %}
     {% endwith %}
@@ -63,7 +63,7 @@
     {% with successes = get_flashed_messages(category_filter=["success"]) %}
         {% if successes %}
           {%- for msg in successes %}
-        <p class="animated fadeInDown navbar-text">{{ msg }}</p>
+        <p class="fadeIn navbar-text">{{ msg }}</p>
           {% endfor -%}
         {% endif %}
     {% endwith %}
