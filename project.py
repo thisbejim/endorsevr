@@ -1,6 +1,6 @@
 import sys
 import os
-from flask import Flask, render_template, g, request, redirect, url_for, flash, jsonify, session
+from flask import Flask, render_template, g, request, redirect, url_for, flash, jsonify, session, Response
 import logging
 from sqlalchemy import desc, asc
 from werkzeug import secure_filename
@@ -11,20 +11,32 @@ import cloudinary.uploader
 import cloudinary.api
 import datetime
 from passlib.hash import sha256_crypt
+import stripe
+import time
 
+SKETCHFAB_DOMAIN = 'sketchfab.com'
+SKETCHFAB_API_URL = 'https://api.{}/v2/models'.format(SKETCHFAB_DOMAIN)
+SKETCHFAB_MODEL_URL = 'https://{}/models/'.format(SKETCHFAB_DOMAIN)
+OAUTH2_CLIENT_ID = 'YOUR_CLIENT_ID'
+USERNAME = 'endorsevr'
+PASSWORD = 'Thereisnospoon1'
 
+YOUR_API_TOKEN = "f142a5b017284ab083ba30bfd59247bf"
+
+stripe.api_key = "sk_test_0OzGigpXejNgMJFqJbZWTfgd"
 # App Config
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = 'static/uploads/'
 
+
 # Set allowable MIME Types for upload
-ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif']
+ALLOWED_EXTENSIONS = ['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'zip']
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 app = Flask(__name__)
-
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = 'super secret key'
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
@@ -37,7 +49,7 @@ cloudinary.config(cloud_name="hdriydpma", api_key="936542698847873", api_secret=
 # Import crud
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Asset, Base, User, Endorsement, Paragraph, Project
+from database_setup import Asset, Base, User, Endorsement, Paragraph, Project, TurnImg
 
 # Create Session
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
@@ -237,25 +249,55 @@ def newAsset():
     endorse = endInfo(this_user)
     if checkAuth('New'):
         if user_projects:
+
             if request.method == 'POST':
+
+                file = request.files['file']
+                filename = secure_filename(file.filename).split(".")
+                cloudinary.uploader.upload(request.files['picture'], public_id=filename[0])
                 this_asset = Asset(name=request.form['name'], dimensions=request.form['dimensions'],
                                    category=request.form['category'], sub_category=request.form['subcategory'],
                                    user_id=this_user.id, price=request.form['price'],
                                    time_created=datetime.datetime.now(), tag_line=request.form['tagline'],
-                                   project_id=request.form['project'])
-                file = request.files['file']
-                if file and allowed_file(file.filename):
-                    filename = secure_filename(file.filename).split(".")
-                    cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
-                    this_asset.picture_name = filename[0]
+                                   project_id=request.form['project'], picture_name=filename[0])
 
-                if request.form['youtube']:
-                    this_url = request.form['youtube']
-                    youtube_id = this_url.split("=")
-                    this_asset.youtube_url = youtube_id[1]
 
                 db.add(this_asset)
                 db.commit()
+
+                file = request.files['file']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                    model_file = UPLOAD_FOLDER+filename
+
+                    name = request.form['name']
+                    description = request.form['tagline']
+                    tags = "endorsevr vr"
+
+                    data = {
+                        'token': YOUR_API_TOKEN,
+                        'name': name,
+                        'description': description,
+                        'tags': tags
+                    }
+
+                    f = open(model_file, 'rb')
+                    print(f)
+                    files = {
+                        'modelFile': f
+                    }
+                    print(files)
+                    try:
+                        model_uid = upload(data, files)
+                        if poll_processing_status(model_uid)[0] == 1:
+                            model = poll_processing_status(model_uid)[1]
+                            referb = model.split("models/")
+                            this_asset.model_url = referb[1]
+
+                    finally:
+                        f.close()
 
                 flash("New Asset Created", "success")
                 return redirect(url_for('profile'))
@@ -268,6 +310,9 @@ def newAsset():
         flash("Please Log In", "danger")
         return redirect(url_for('assets'))
 
+
+
+
 # List unique asset
 @app.route('/assets/<int:asset_id>/', methods=['GET', 'POST'])
 def asset(asset_id):
@@ -275,6 +320,7 @@ def asset(asset_id):
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
         this_project = db.query(Project).filter_by(id=this_asset.project_id).one()
+        this_turntable = db.query(TurnImg).filter_by(asset_id=this_asset.id).count()
 
         this_user = findUser()
         endorse = endInfo(this_user)
@@ -293,7 +339,7 @@ def asset(asset_id):
             return redirect(url_for('profile'))
 
         return render_template('asset.html', asset=this_asset, user=this_user, assetOwner=asset_owner,
-                               endorsements=endorse, project=this_project)
+                               endorsements=endorse, project=this_project, turntable=this_turntable)
 
 # List unique asset
 @app.route('/projects/<int:project_id>/')
@@ -480,6 +526,8 @@ def logout():
     flash("Logged Out", "success")
     return redirect(url_for('assets'))
 
+
+
 # Check authentication and editing privileges
 def checkAuth(asset_id):
     if 'user_id' in session:
@@ -493,6 +541,103 @@ def checkAuth(asset_id):
                 return False
     else:
         return False
+
+# Stripe
+
+# 3d view
+
+def upload(data, files):
+    """
+    Upload a model to sketchfab
+    """
+    print('Uploading ...')
+
+    try:
+        r = requests.post(SKETCHFAB_API_URL, data=data, files=files, verify=False)
+    except requests.RequestException as e:
+        print("An error occured: {}".format(e))
+        return
+
+    result = r.json()
+
+    if r.status_code != requests.codes.created:
+        print("Upload failed with error: {}".format(result))
+        return
+
+    model_uid = result['uid']
+    model_url = SKETCHFAB_MODEL_URL + model_uid
+    print("Upload successful. Your model is being processed.")
+    print("Once the processing is done, the model will be available at: {}".format(model_url))
+
+    return model_uid
+
+
+def poll_processing_status(model_uid):
+    """
+    Poll the Sketchfab API to query the processing status
+    """
+    polling_url = "{}/{}/status?token={}".format(SKETCHFAB_API_URL, model_uid, YOUR_API_TOKEN)
+    max_errors = 10
+    errors = 0
+    retry = 0
+    max_retries = 50
+    retry_timeout = 5  # seconds
+
+    print("Start polling processing status for model {}".format(model_uid))
+
+    while (retry < max_retries) and (errors < max_errors):
+        print("Try polling processing status (attempt #{}) ...".format(retry))
+
+        try:
+            r = requests.get(polling_url)
+        except requests.RequestException as e:
+            print("Try failed with error {}".format(e))
+            errors += 1
+            retry += 1
+            continue
+
+        result = r.json()
+
+        if r.status_code != requests.codes.ok:
+            print("Upload failed with error: {}".format(result['error']))
+            errors += 1
+            retry += 1
+            continue
+
+        processing_status = result['processing']
+        if processing_status == 'PENDING':
+            print("Your model is in the processing queue. Will retry in {} seconds".format(retry_timeout))
+            print("Want to skip the line? Get a pro account! https://sketchfab.com/plans")
+            retry += 1
+            time.sleep(retry_timeout)
+            continue
+        elif processing_status == 'PROCESSING':
+            print("Your model is still being processed. Will retry in {} seconds".format(retry_timeout))
+            retry += 1
+            time.sleep(retry_timeout)
+            continue
+        elif processing_status == 'FAILED':
+            print("Processing failed: {}".format(result['error']))
+            return
+        elif processing_status == 'SUCCEEDED':
+            model_url = SKETCHFAB_MODEL_URL + model_uid
+            this = [1, model_url]
+            print("Processing successful. Check your model here: {}".format(model_url))
+            return this
+
+        retry += 1
+
+    print("Stopped polling after too many retries or too many errors")
+
+
+##################################################
+# Upload a model an poll for its processing status
+##################################################
+
+# Mandatory parameters
+
+
+
 
 if __name__ == '__main__':
     app.debug = True

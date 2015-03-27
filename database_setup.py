@@ -32,9 +32,11 @@ class Asset(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     project_id = Column(Integer, ForeignKey('project.id'))
     youtube_url = Column(String(250))
+    model_url = Column(String(250))
     dimensions = Column(String(250))
     price = Column(Float(scale=2))
     time_created = Column(DateTime)
+
 
 class Paragraph(Base):
     __tablename__ = 'paragraph'
@@ -71,6 +73,13 @@ class Endorsement(Base):
     texture_file = Column(String(200))
     active = Column(Boolean, unique=False, default=True)
     time_created = Column(DateTime)
+
+class TurnImg(Base):
+    __tablename__ = 'turnimage'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(250))
+    asset_id = Column(Integer, ForeignKey('asset.id'))
+    order_number = Column(Integer)
     
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://James:james@localhost:5432/mytest')
 engine = create_engine(SQLALCHEMY_DATABASE_URI)

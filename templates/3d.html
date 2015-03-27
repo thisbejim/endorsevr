@@ -1,0 +1,40 @@
+<html>
+  <head><script src="https://code.jquery.com/jquery-2.1.1.js"></script></head>
+  <script src="http://360slider.com/js/threesixty.js"></script>
+  <link rel=stylesheet href="{{ url_for('static', filename='css/threesixty.css')}}">
+<body>
+<div class="threesixty car">
+    <div class="spinner">
+        <span>0%</span>
+    </div>
+    <ol class="threesixty_images"></ol>
+</div>
+
+<script>
+
+window.onload = init;
+
+var car;
+function init(){
+
+    car = $('.car').ThreeSixty({
+        totalFrames: 31, // Total no. of image you have for 360 slider
+        endFrame: 31, // end frame for the auto spin animation
+        currentFrame: 1, // This the start frame for auto spin
+        imgList: '.threesixty_images', // selector for image list
+        progress: '.spinner', // selector to show the loading progress
+        imagePath:'../static/3d/', // path of the image assets
+        filePrefix: '', // file prefix if any
+        ext: '.jpg', // extention for the assets
+        height: 465,
+        width: 465,
+        navigation: true
+    });
+
+}
+
+</script>
+ 
+</body>
+  
+</html>

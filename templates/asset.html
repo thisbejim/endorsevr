@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
-  
-  
+
+
   <div class="bigdivider"></div>
   <div class="container">
   <div class="row">
@@ -21,33 +21,19 @@
         {% endif %}
       </div>
     </div>
-
-        
     
 
 
       <div class="divider"></div>
     <div class="row">
           <!-- Check if course has a picture, assign default picture if not -->
-      {% if asset.youtube_url %}
-      
       <div class="col-md-6">
-<iframe width="550" height="340" src="https://www.youtube.com/embed/{{asset.youtube_url}}" frameborder="0" allowfullscreen></iframe>
-          </div>
-      
-      {% elif asset.picture_name %}
-          <div class="col-md-6">
-            <a href="{{ url_for('asset', asset_id=asset.id)}}">
-            <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{asset.picture_name}}">
-              </a>
-          </div>
-      {% else %}
-          <div class="col-md-6">
-            <a href="{{ url_for('asset', asset_id=asset.id)}}">
-            <img class="img-responsive" src="http://res.cloudinary.com/hdriydpma/image/upload/mentor_eiy5fn.jpg" width="100%">
-              </a>
-          </div>
-      {% endif %}
+
+     <iframe src="" id="api-frame" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true" width="500px" height="500px"></iframe>
+    
+      </div>
+
+
       <div class="col-md-6 visible-md visible-lg">
 
         <h3>From project <a href="{{ url_for('project', project_id=project.id)}}">{{ project.name }}</a></h3>
@@ -185,5 +171,23 @@
       </div>
   </div>
 </div>
+
+<script>
+
+var iframe = document.getElementById( 'api-frame' );
+var version = '1.0.0';
+var urlid = '{{ asset.model_url }}';
+var client = new Sketchfab( version, iframe );
+
+client.init( urlid, {
+    success: function onSuccess( api ){
+        //API is ready to use
+        api.start();
+    },
+    error: function onError() {
+        console.log( 'Viewer error' );
+    }
+} );
+</script>
 
 {% endblock %}
