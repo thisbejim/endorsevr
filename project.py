@@ -261,7 +261,6 @@ def newAsset():
                                    time_created=datetime.datetime.now(), tag_line=request.form['tagline'],
                                    project_id=request.form['project'], picture_name=filename[0])
 
-
                 db.add(this_asset)
                 db.commit()
 
@@ -320,6 +319,7 @@ def asset(asset_id):
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
         this_project = db.query(Project).filter_by(id=this_asset.project_id).one()
+        project_assets = db.query(Asset).filter_by(project_id=this_project.id).all()
         this_turntable = db.query(TurnImg).filter_by(asset_id=this_asset.id).count()
 
         this_user = findUser()
@@ -339,7 +339,8 @@ def asset(asset_id):
             return redirect(url_for('profile'))
 
         return render_template('asset.html', asset=this_asset, user=this_user, assetOwner=asset_owner,
-                               endorsements=endorse, project=this_project, turntable=this_turntable)
+                               endorsements=endorse, project=this_project, turntable=this_turntable,
+                               assets=project_assets)
 
 # List unique asset
 @app.route('/projects/<int:project_id>/')
@@ -348,11 +349,12 @@ def project(project_id):
         this_project = db.query(Project).filter_by(id=project_id).one()
         asset_owner = db.query(User).filter_by(id=this_project.user_id).one()
         project_assets = db.query(Asset).filter_by(project_id=project_id).all()
+        asset_num = db.query(Asset).filter_by(project_id=project_id).count()
         asset_p = db.query(Paragraph).filter_by(project_id=this_project.id).order_by(asc(Paragraph.time_created)).all()
         this_user = findUser()
         endorse = endInfo(this_user)
         return render_template('project.html', project=this_project, user=this_user, assetOwner=asset_owner,
-                               endorsements=endorse, description=asset_p, assets=project_assets)
+                               endorsements=endorse, description=asset_p, assets=project_assets, asset_num=asset_num)
 
 # Edit unique asset
 @app.route('/assets/<int:asset_id>/edit', methods=['GET', 'POST'])
@@ -628,14 +630,6 @@ def poll_processing_status(model_uid):
         retry += 1
 
     print("Stopped polling after too many retries or too many errors")
-
-
-##################################################
-# Upload a model an poll for its processing status
-##################################################
-
-# Mandatory parameters
-
 
 
 

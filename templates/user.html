@@ -89,5 +89,19 @@
       </div>
     </div>
 
+<script>
+  
 
+$( document ).ready(function() {
+    $('.pin').each(function(i,obj) {
+      $(this).delay((i++) * 100).queue(function(){
+        $(this).addClass('pinAnim');
+        $(this).dequeue();
+        obj.style.opacity = 1;
+      }); 
+  });
+
+});
+
+</script>
 {% endblock %}

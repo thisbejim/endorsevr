@@ -71,6 +71,17 @@ $(document).ready(function() {
                         message: 'The name must be more than 6 and less than 30 characters long'
                     }
                 }
+            },
+          description: {
+                validators: {
+                    notEmpty: {
+                        message: 'Description is required'
+                    },
+                    stringLength: {
+                        max: 741,
+                        message: 'The description must be no more than 741 characters long'
+                    }
+                }
             }
         }
     });

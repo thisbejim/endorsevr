@@ -7,21 +7,11 @@
   <div class="row">
     <div class="col-md-12">
     <div class="row">
-      <div class="col-md-12 text-center">
+      <div class="col-md-12">
         <h1>{{ project.name }}</h1>
-        <p>{{ project.tag_line }}</p>
       </div>
     </div>
-     <!-- If user is course creator, make course content editable -->   
-    <div class="row">
-      <div class="col-md-12 text-center">
-        {% if project.user_id == user.id %}
-        
-          <span class="glyphicon glyphicon-cog">
 
-        {% endif %}
-      </div>
-    </div>
 
         
     
@@ -31,15 +21,14 @@
 
     <div class="row">
           <!-- Check if course has a picture, assign default picture if not -->
-      <div class="col-md-6">
+      <div class="col-md-8">
         
-        <div class="row">
-        <div class="col-md-12 text-left">
+ 
       {% if project.youtube_url %}
       
-
-<iframe width="570" height="340" src="https://www.youtube.com/embed/{{ project.youtube_url }}" frameborder="0" allowfullscreen></iframe>
-
+<div class="embed-responsive embed-responsive-16by9">
+     <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/{{ project.youtube_url }}" id="api-frame" allowfullscreen mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>
+          </div>
 
 
       {% elif project.picture_name %}
@@ -55,97 +44,176 @@
               </a>
 
       {% endif %}
-      </div>
 
+  </div>
         
-        
-      
-      <div class="row visible-md visible-lg">
-        <div class="col-md-12 text-left"> 
-        <div class="divider"></div>
-            <h2>About this Project</h2>
-         
-          <div class="line"></div>
-        </div>
-      </div>
-      
-      <div class="row visible-md visible-lg">
-      <div class="col-md-12 text-left">
-          <div class="divider"></div>
+    <div class="col-md-4"> 
+
+      <div class="infobox well">
+        <div class="row">
+          <div class="col-md-12">
+          <p class="text-muted">ABOUT THIS PROJECT</p>
+          </div>
+          <div class="col-md-12">
+                  <p><i>{{ project.tag_line }}</i></p>
+          </div>
+         <div class="col-md-12">
         {% for i in description %}
         <p>{{ i.text }}</p>
         {% endfor %}
-        <div class="divider"></div>
           </div>
-        
-      </div>
-      
-      <div class="row visible-md visible-lg">
-        <div class="col-md-12 text-left"> 
-          <div class="line"></div>
-          <div class="divider"></div>
-
-        <div class="project-img-container">
-          <a href="{{ url_for('user', user_id=assetOwner.id)}}">
-        <img class="img-respnsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{assetOwner.profile_pic}}" width="100px" height="100px"></a>
-          </div>
-
-          <h3>Created by  {{ assetOwner.username }}</h3>
-
-          
-         
-          
-        </div>
-      </div>
+            </div>
+            </div>
+    
         </div>
       
       
       </div>
 
+  
       
-      <div class="col-md-6"> 
-      <div class="row visible-md visible-lg  visible-sm visible-xs">
       
+     <div class="row">
+       <div class="col-md-8">
+         <div class="divider"></div> 
+         <p>Project Assets</p>
+         <div class="line"></div>
+         <div class="smalldivider"></div> 
 
-        <div class="col-md-12">
-          Assets
-         
-          <div class="line"></div>
-          <div class="smalldivider"></div>
- 
+                 
+                 
+                 
           <div id="wrapper">
     <div id="projectcolumns">
       {% for i in assets %}
-        <div class="projectpin">
-
+        <div class="projectpin" id="{{i.id}}">
             <a href="{{ url_for('asset', asset_id=i.id)}}">
               <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
               </a>
           <div class="line"></div>
-          <p class="boxtexttitle"><b>{{ i.name }}</b></p>
+          <p class="boxtexttitle"><b>  <a href="{{ url_for('asset', asset_id=i.id)}}">{{ i.name }}</a></b></p>
           <div class="line"></div>
-          <p class="boxtext">${{ i.price }}</p>
-
-        </div>
-      {% endfor %}
+          <p class="boxtext">{{ i.price }}</p>
+      </div>
+    {% endfor %}
             </div>
           </div>
-          
-          
+   </div>
+       
 
+         
+             <div class="col-md-4">
+               <div class="divider"></div> 
+         <div class="smalldivider"></div> 
+               <div class="smalldivider"></div> 
+               <p></p><p></p>
+       <div class="row">    
+         <div class="col-md-12">
+      <div class="animbox well">
+        <div class="row">
+          <div class="col-md-4">
+            {{ project.category }}
+                  </div>
+            </div>
+            </div>
           </div>
          
-      </div>
+         <div class="col-md-12">
+                  <div class="animbox well">
+        <div class="row">
+          
+          <div class="col-md-4">
+            {{asset_num}} Assets
+                  </div>
+            </div>
+            </div>
+         </div>
+         
+         <div class="col-md-12">
+                  <div class="animbox well">
+        <div class="row">
+          
+          <div class="col-md-4">
+            {{asset_num}} Followers
+                  </div>
+          <div class="col-md-4">
+                  </div>
+            </div>
+            </div>
+         </div>
+        
+        <div class="col-md-12"> 
+      
 
-        </div>
-      </div>
-      
-      
+               <div class="animbox well">
+                 <div class="col-md-10">
+                   <div class="row">
+                     <div class="col-md-12">
+        <i class="fa fa-facebook-square fa-3x padthis"></i>
+                 <i class="fa fa-steam-square fa-3x padthis"></i>
+                   <i class="fa fa-twitter-square fa-3x padthis"></i>
+                      </div>
+                     </div>
+                   
+                   <div class="row">
+                     <div class="col-md-8 col-md-offset-3">
+                       <div class="divider"></div>
+                         <a href="{{ url_for('user', user_id=assetOwner.id)}}">
+                       <p>{{ assetOwner.username}}</p>
+                       </a>
+                     </div>
+                   </div>
+                </div>
+                 <div class="col-md-2">
+                 <div class="project-img-container pull-right">
+                     <a href="{{ url_for('user', user_id=assetOwner.id)}}">
+          {% if user.profile_pic %}
+        <img src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{assetOwner.profile_pic}}" width="100px" height="100px">
+          {% else %}
+       <img src="https://res-4.cloudinary.com/hdriydpma/image/upload/mushproper" width="150px" height="150px"> 
+          {% endif %}
+                       </a>
+          </div>
+              </div>
+
+         </div>
+
+
 
       
-    
+</div>   
+      </div> 
+
+      
+    </div>
       </div>
   </div>
 </div>
+    </div>
 
+    
+<script>
+  
+
+$( document ).ready(function() {
+    $('.projectpin').each(function(i,obj) {
+      $(this).delay((i++) * 100).queue(function(){
+        $(this).addClass('pinAnim');
+        $(this).dequeue();
+        obj.style.opacity = 1;
+      }); 
+  });
+  $('.animbox').each(function(i,obj) {
+      $(this).delay((i++) * 100).queue(function(){
+        
+        $(this).addClass('animthis');
+        $(this).dequeue();
+        console.log("done")
+        obj.style.opacity = 1;
+      }); 
+  });
+});
+ 
+
+</script>
 {% endblock %}

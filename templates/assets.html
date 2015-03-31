@@ -7,26 +7,36 @@
         
          <!-- Body content -->
         <div class="row">
-          <div class="col-md-12 text-center">
+          <div class="col-md-12">
         <h1>ASSETS</h1>
         </div>
-      </div>
-      <!-- Show course authoring options if authenticated, otherwise show login option -->
-    {% if user %}
+          </div>
+
       <div class="row">
-        <div class="col-md-12 text-center">
-          <a class="btn btn-default" href="{{ url_for('new_project')}}" role="button">New Project</a>
-          <a class="btn btn-default" href="{{ url_for('newAsset')}}" role="button">New Asset</a>
-        </div>
-      </div>
-    {% endif %}
-        
+          <div class="col-md-12">  
     <div class="smalldivider"></div>
-          
-      {% for a in categories %}    
+       
+      <ul class="nav nav-tabs">
+
+  <li role="presentation" class="dropdown">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">
+      Categories <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu" role="menu">
+       <li><a href="{{ url_for('category', asset_category='Clothing')}}">Clothing</a></li>
+        <li><a href="{{ url_for('category', asset_category='Vehicles')}}">Vehicles</a></li>
+       <li><a href="{{ url_for('category', asset_category='Buildings')}}">Buildings</a></li>
+       <li><a href="{{ url_for('category', asset_category='Tattoos')}}">Tattoos</a></li>
+       <li><a href="{{ url_for('category', asset_category='Adverts')}}">Adverts</a></li>
+       <li><a href="{{ url_for('category', asset_category='Miscellaneous')}}">Miscellaneous</a></li>
+    </ul>
+  </li>
+</ul>  
+        </div>
+        </div>
+        
       <div class="row">
         <div class="col-md-12">
-        <a href="{{ url_for('category', asset_category=a.category)}}"><h2>{{ a.category }}</h2></a>
           <div class="line"></div>
           <div class="smalldivider"></div>
         </div>
@@ -41,9 +51,9 @@
         <div class="col-md-12">
           <div id="wrapper">
     <div id="columns">
-      {% set count = 0 %}
+
       {% for i in assets %}
-      {% if i.category == a.category and count != 10 %}
+
         <div class="pin">
             <a href="{{ url_for('asset', asset_id=i.id)}}">
               <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
@@ -53,9 +63,7 @@
           <div class="line"></div>
           <p class="boxtext">${{ i.price }}</p>
       </div>
-       {% set count = count + 1 %}
-        {% endif %}
-    {% endfor %}
+      {% endfor %}
             </div>
           </div>
         </div>
@@ -67,14 +75,14 @@
 
           
      
-              </div>
+         
 
 
         
         
           
 
-          {% endfor %}
+
           
 
           
@@ -87,6 +95,21 @@
     
     
       </div>
+</div>
 
+<script>
+  
 
+$( document ).ready(function() {
+    $('.pin').each(function(i,obj) {
+      $(this).delay((i++) * 100).queue(function(){
+        $(this).addClass('pinAnim');
+        $(this).dequeue();
+        obj.style.opacity = 1;
+      }); 
+  });
+});
+ 
+
+</script>
 {% endblock %}

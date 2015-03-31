@@ -7,26 +7,26 @@
         
          <!-- Body content -->
         <div class="row">
-          <div class="col-md-12 text-center">
+          <div class="col-md-12">
         <h1>PROJECTS</h1>
         </div>
         </div>
       <!-- Show course authoring options if authenticated, otherwise show login option -->
-    {% if user %}
-      <div class="row">
-        <div class="col-md-12 text-center">
-          <a class="btn btn-default" href="{{ url_for('new_project')}}" role="button">New Project</a>
-          <a class="btn btn-default" href="{{ url_for('newAsset')}}" role="button">New Asset</a>
-        </div>
-      </div>
-    {% endif %}
         
     <div class="smalldivider"></div>
           
       {% for a in categories %}    
       <div class="row this_pad">
         <div class="col-md-12">
-        <a href="{{ url_for('category', asset_category=a.category)}}"><h2>{{ a.category }}</h2></a>
+        <a href="{{ url_for('category', asset_category=a.category)}}">
+          
+          {% if a.category == 'Gaming' %}
+          <i class="fa fa-gamepad fa-3x"></i> / {{ a.category}}</a>
+          {% elif a.category == 'Film/Animation' %}
+          <i class="fa fa-video-camera fa-3x"></i> / {{ a.category}}</a>
+          {% elif a.category == 'Education' %}
+          <i class="fa fa-graduation-cap fa-3x"></i> / {{ a.category}}</a>
+          {% endif %}
           <div class="line"></div>
           <div class="smalldivider"></div>
         </div>
@@ -42,7 +42,7 @@
       {% set count = 0 %}
       {% for i in projects %}
       {% if i.category == a.category and count != 10 %}
-        <div class="pin">
+        <div class="pin" id="{{i.id}}">
             <a href="{{ url_for('project', project_id=i.id)}}">
               <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
               </a>
@@ -59,20 +59,33 @@
    </div>
 </div>  
 </div>
+    <div class="divider"> </div>
           {% endfor %}
           
 
           
-          
-          
-          
-          
-          
+            
       </div>
     
     
       </div>
   </div>
 </div>
+
+<script>
+  
+
+$( document ).ready(function() {
+    $('.pin').each(function(i,obj) {
+      $(this).delay((i++) * 100).queue(function(){
+        $(this).addClass('pinAnim');
+        $(this).dequeue();
+        obj.style.opacity = 1;
+      }); 
+  });
+});
+ 
+
+</script>
 
 {% endblock %}
