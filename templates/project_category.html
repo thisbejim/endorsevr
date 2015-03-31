@@ -15,17 +15,17 @@
         
     <div class="smalldivider"></div>
           
-      {% for a in categories %}    
+
       <div class="row this_pad">
         <div class="col-md-12">
-        <a href="{{ url_for('p_category', project_category=a.category)}}">
+        
           
-          {% if a.category == 'Gaming' %}
-          <i class="fa fa-gamepad fa-3x"></i> / {{ a.category}}</a>
-          {% elif a.category == 'Film/Animation' %}
-          <i class="fa fa-video-camera fa-3x"></i> / {{ a.category}}</a>
-          {% elif a.category == 'Education' %}
-          <i class="fa fa-graduation-cap fa-3x"></i> / {{ a.category}}</a>
+          {% if category == 'Gaming' %}
+          <i class="fa fa-gamepad fa-3x"></i> / {{ category}}
+          {% elif category == 'Film and Animation' %}
+          <i class="fa fa-video-camera fa-3x"></i> / {{ category}}
+          {% elif category == 'Education' %}
+          <i class="fa fa-graduation-cap fa-3x"></i> / {{ category}}
           {% endif %}
           <div class="line"></div>
           <div class="smalldivider"></div>
@@ -39,9 +39,9 @@
         <div class="col-md-12">
           <div id="wrapper">
     <div id="columns">
-      {% set count = 0 %}
+
       {% for i in projects %}
-      {% if i.category == a.category and count != 10 %}
+
         <div class="pin" id="{{i.id}}">
             <a href="{{ url_for('project', project_id=i.id)}}">
               <img class="img-responsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{i.picture_name}}" width="100%">
@@ -51,8 +51,7 @@
           <div class="line"></div>
           <p class="boxtext">{{ i.tag_line }}</p>
       </div>
-       {% set count = count + 1 %}
-        {% endif %}
+
     {% endfor %}
             </div>
           </div>
@@ -60,7 +59,7 @@
 </div>  
 </div>
     <div class="divider"> </div>
-          {% endfor %}
+
           
 
           

@@ -283,11 +283,11 @@ def newAsset():
                     }
 
                     f = open(model_file, 'rb')
-                    print(f)
+
                     files = {
                         'modelFile': f
                     }
-                    print(files)
+
                     try:
                         model_uid = upload(data, files)
                         if poll_processing_status(model_uid)[0] == 1:
@@ -320,7 +320,7 @@ def asset(asset_id):
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
         this_project = db.query(Project).filter_by(id=this_asset.project_id).one()
         project_assets = db.query(Asset).filter_by(project_id=this_project.id).all()
-        this_turntable = db.query(TurnImg).filter_by(asset_id=this_asset.id).count()
+
 
         this_user = findUser()
         endorse = endInfo(this_user)
@@ -339,13 +339,12 @@ def asset(asset_id):
             return redirect(url_for('profile'))
 
         return render_template('asset.html', asset=this_asset, user=this_user, assetOwner=asset_owner,
-                               endorsements=endorse, project=this_project, turntable=this_turntable,
+                               endorsements=endorse, project=this_project,
                                assets=project_assets)
 
 # List unique asset
 @app.route('/projects/<int:project_id>/')
 def project(project_id):
-
         this_project = db.query(Project).filter_by(id=project_id).one()
         asset_owner = db.query(User).filter_by(id=this_project.user_id).one()
         project_assets = db.query(Asset).filter_by(project_id=project_id).all()
@@ -356,64 +355,149 @@ def project(project_id):
         return render_template('project.html', project=this_project, user=this_user, assetOwner=asset_owner,
                                endorsements=endorse, description=asset_p, assets=project_assets, asset_num=asset_num)
 
+# Sort assets by category
+@app.route('/project/<project_category>/')
+def p_category(project_category):
+    all_projects = db.query(Project).filter_by(category=project_category).order_by(desc(Project.time_created)).all()
+    users = db.query(User).all()
+    this_user = findUser()
+    endorse = endInfo(this_user)
+    return render_template('project_category.html', projects=all_projects, user=this_user, users=users,
+                           category=project_category, endorsements=endorse)
+
+
+
 # Edit unique asset
 @app.route('/assets/<int:asset_id>/edit', methods=['GET', 'POST'])
 def editAsset(asset_id):
         this_user = findUser()
         endorse = endInfo(this_user)
-        paragraph = db.query(Paragraph).filter_by(asset_id=asset_id).all()
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
+        user_projects = db.query(Project).filter_by(user_id=session['user_id']).all()
         # Check editing privileges
         if checkAuth(asset_id):
             if request.method == 'POST':
                 # Check for changing attributes
+                file = request.files['file']
+                if file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+                    model_file = UPLOAD_FOLDER+filename
+
+                    name = request.form['name']
+                    description = request.form['tagline']
+                    tags = "endorsevr vr"
+
+                    data = {
+                        'token': YOUR_API_TOKEN,
+                        'name': name,
+                        'description': description,
+                        'tags': tags
+                    }
+
+                    f = open(model_file, 'rb')
+
+                    files = {
+                        'modelFile': f
+                    }
+
+                    try:
+                        model_uid = upload(data, files)
+                        if poll_processing_status(model_uid)[0] == 1:
+                            model = poll_processing_status(model_uid)[1]
+                            split_url = model.split("models/")
+                            this_asset.model_url = split_url[1]
+
+                    finally:
+                        f.close()
+
                 if request.form['name']:
                     this_asset.name = request.form['name']
-                if request.form['description']:
-                    for i in paragraph:
-                        db.delete(i)
-                    db.commit()
-                    description_text = request.form['description']
-                    this_text = description_text.split('\n')
-                    for i in this_text:
-                        this_paragraph = Paragraph(text=i, asset_id=asset_id, time_created=datetime.datetime.now())
-                        db.add(this_paragraph)
-                        db.commit()
+
 
                 if request.form['category']:
                     this_asset.category = request.form['category']
-                if request.files['file']:
-                    file = request.files['file']
+                if request.form['subcategory']:
+                    this_asset.sub_category = request.form['subcategory']
+                if request.form['project']:
+                    this_asset.project_id = request.form['project']
+                if request.files['picture']:
+                    file = request.files['picture']
                     filename = secure_filename(file.filename).split(".")
-                    cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
+                    cloudinary.uploader.upload(request.files['picture'], public_id=filename[0])
                     this_asset.picture_name = filename[0]
-                if request.form['youtube']:
-                    thisUrl = request.form['youtube']
-                    referb = thisUrl.split("=")
-                    this_asset.youtube_url = referb[1]
-
 
                 db.add(this_asset)
                 db.commit()
                 flash("Asset Edited", "success")
                 return redirect(url_for('asset',  asset_id=asset_id))
             else:
-                return render_template('edit.html', asset=this_asset, user=this_user, endorsements=endorse)
+                return render_template('edit_asset.html', asset=this_asset, user=this_user, endorsements=endorse,
+                                       projects=user_projects)
+        else:
+            flash("Access Denied", "danger")
+            return redirect(url_for('assets'))
+
+# Edit unique asset
+@app.route('/projects/<int:project_id>/edit', methods=['GET', 'POST'])
+def edit_project(project_id):
+        this_user = findUser()
+        endorse = endInfo(this_user)
+        this_project = db.query(Project).filter_by(id=project_id).one()
+        # Check editing privileges
+        if True:
+            if request.method == 'POST':
+                # Check for changing attributes
+
+                if request.form['name']:
+                    this_project.name = request.form['name']
+
+                if request.form['category']:
+                    this_project.category = request.form['category']
+                if request.form['website']:
+                    this_project.website = request.form['website']
+                if request.form['youtube']:
+                    this_url = request.form['youtube']
+                    url_split = this_url.split("=")
+                    this_project.youtube_url = url_split[1]
+                if request.files['file']:
+                    file = request.files['file']
+                    filename = secure_filename(file.filename).split(".")
+                    cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
+                    this_project.picture_name = filename[0]
+
+                db.add(this_project)
+                db.commit()
+                flash("Project Edited", "success")
+                return redirect(url_for('project',  project_id=project_id))
+            else:
+                return render_template('edit.html', project=this_project, user=this_user, endorsements=endorse)
         else:
             flash("Access Denied", "danger")
             return redirect(url_for('assets'))
 
 # Delete unique asset
-@app.route('/assets/<int:asset_id>/deleteasset/', methods=['GET', 'POST'])
-def deleteAsset(asset_id):
+@app.route('/assets/<int:asset_id>/delete/', methods=['GET', 'POST'])
+def delete_asset(asset_id):
         if checkAuth(asset_id):
-            paragraphs = db.query(Paragraph).filter_by(asset_id=asset_id).all()
-            for i in paragraphs:
-                db.delete(i)
             this_asset = db.query(Asset).filter_by(id=asset_id).one()
             db.delete(this_asset)
             db.commit()
             flash("Asset Deleted", "danger")
+            return redirect(url_for('profile'))
+        else:
+            flash("Access Denied", "danger")
+            return redirect(url_for('assets'))
+
+# Delete unique project
+@app.route('/projects/<int:project_id>/delete/', methods=['GET', 'POST'])
+def delete_project(project_id):
+        if True:
+            this_project = db.query(Project).filter_by(id=project_id).one()
+            db.delete(this_project)
+            db.commit()
+            flash("Project Deleted", "danger")
             return redirect(url_for('profile'))
         else:
             flash("Access Denied", "danger")
@@ -432,7 +516,7 @@ def register():
         else:
             hash = sha256_crypt.encrypt(request.form['password'])
             new = User(username=request.form['username'], email=request.form['email'], password_hash=hash,
-                   advertiser=request.form['inlineRadioOptions'])
+                       advertiser=request.form['inlineRadioOptions'])
             db.add(new)
             db.commit()
             session['user_id'] = new.id
@@ -630,7 +714,6 @@ def poll_processing_status(model_uid):
         retry += 1
 
     print("Stopped polling after too many retries or too many errors")
-
 
 
 if __name__ == '__main__':
