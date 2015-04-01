@@ -13,6 +13,7 @@ import datetime
 from passlib.hash import sha256_crypt
 import stripe
 import time
+import oauthlib
 
 SKETCHFAB_DOMAIN = 'sketchfab.com'
 SKETCHFAB_API_URL = 'https://api.{}/v2/models'.format(SKETCHFAB_DOMAIN)
@@ -23,7 +24,6 @@ PASSWORD = 'Thereisnospoon1'
 
 YOUR_API_TOKEN = "f142a5b017284ab083ba30bfd59247bf"
 
-stripe.api_key = "sk_test_0OzGigpXejNgMJFqJbZWTfgd"
 # App Config
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = 'static/uploads/'
@@ -41,7 +41,12 @@ app.config['SECRET_KEY'] = 'super secret key'
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://James:james@localhost:5432/mytest')
+app.config['SITE'] = "http://0.0.0.0:5000/"
 
+app.config['CLIENT_ID'] = "ca_5we9ErQZG1PtAUgdiS9IaOw7RI4J4Sld"
+app.config['API_KEY'] = "sk_test_0OzGigpXejNgMJFqJbZWTfgd"
+app.config['PUBLISHABLE_KEY'] = "pk_test_JgVPXsrOEQvLo6cP657UUdPQ"
+stripe.api_key = "sk_test_0OzGigpXejNgMJFqJbZWTfgd"
 cloudinary.config(cloud_name="hdriydpma", api_key="936542698847873", api_secret="URri2QHl0U8e-Q2whUjpqj7I4f8")
 
 
@@ -247,6 +252,9 @@ def newAsset():
     endorse = endInfo(this_user)
     if check_auth('new', None):
         user_projects = db.query(Project).filter_by(user_id=session['user_id']).all()
+        if this_user.stripe_user_id is None:
+            flash("Please setup payment processing", "danger")
+            return redirect(url_for('settings'))
         if user_projects:
 
             if request.method == 'POST':
@@ -338,7 +346,7 @@ def asset(asset_id):
 
         return render_template('asset.html', asset=this_asset, user=this_user, assetOwner=asset_owner,
                                endorsements=endorse, project=this_project,
-                               assets=project_assets)
+                               assets=project_assets, key=app.config['PUBLISHABLE_KEY'])
 
 # List unique asset
 @app.route('/projects/<int:project_id>/')
@@ -581,6 +589,7 @@ def user(user_id):
 def settings():
         this_user = findUser()
         endorse = endInfo(this_user)
+        stripe_url="https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_5we9ErQZG1PtAUgdiS9IaOw7RI4J4Sld&scope=read_write"
         # Check editing privileges
         if True:
             if request.method == 'POST':
@@ -601,7 +610,7 @@ def settings():
                 flash("Settings Changed", "success")
                 return redirect(url_for('profile'))
             else:
-                return render_template('settings.html', user=this_user, endorsements=endorse)
+                return render_template('settings.html', user=this_user, endorsements=endorse, stripe_url=stripe_url)
 
 # Logout
 @app.route('/logout')
@@ -634,6 +643,75 @@ def check_auth(content_type, content_id):
         return False
 
 # Stripe
+
+# stripe.api_key = PLATFORM_SECRET_KEY
+# stripe.Charge.create(
+#   amount=1000,
+#   currency='gbp',
+#   source={TOKEN},
+#   stripe_account={CONNECTED_STRIPE_ACCOUNT_ID}
+# )
+# resp = facebook.authorized_response()
+#     if resp is None:
+#         flash("Authentication Failed", "danger")
+#         return redirect(url_for('assets'))
+#
+#     payload = {'access_token': resp['access_token']}
+#     r = requests.get('https://graph.facebook.com/me', params=payload)
+#     info = json.loads(r.text)
+#     user = db.query(User).filter_by(facebook_id=info['id']).first()
+
+@app.route('/authorize')
+def authorize():
+    stripe_url="https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_5we9ErQZG1PtAUgdiS9IaOw7RI4J4Sld&scope=read_write"
+    return redirect(stripe_url)
+
+@app.route('/oauth/callback')
+def callback():
+    this_user = findUser()
+    code = request.args.get('code')
+    payload = {'grant_type': 'authorization_code', 'client_id': app.config['CLIENT_ID'],
+               'client_secret': app.config['API_KEY'], 'code': code}
+
+    # Make /oauth/token endpoint POST request
+    url = 'https://connect.stripe.com/oauth/token'
+    resp = requests.post(url, params=payload)
+    info = json.loads(resp.text)
+    print(info)
+    this_user.stripe_user_id = info['stripe_user_id']
+    this_user.stripe_publishable_key = info['stripe_publishable_key']
+    this_user.access_token = info['access_token']
+    db.add(this_user)
+    db.commit()
+    return redirect('projects')
+
+@app.route('/payment/<int:asset_id>/<int:buyer_id>/<int:seller_user_id>/', methods=['GET', 'POST'])
+def pay(asset_id, buyer_id, seller_user_id):
+    if request.method == 'POST':
+
+        this_asset = db.query(Asset).filter_by(id=asset_id).one()
+        price_in_cents = this_asset.price * 100
+        price = int(price_in_cents)
+        fee = 0.02 * float(price)
+        fee = int(fee)
+        seller = db.query(User).filter_by(id=seller_user_id).first()
+        buyer = db.query(User).filter_by(id=buyer_id).first()
+        token = request.form['stripeToken']
+        try:
+            stripe.Charge.create(amount=price, source=token, currency='usd',
+                                 destination=seller.stripe_user_id, application_fee=fee)
+            this_endorsement = Endorsement(advertiser_id=buyer.id, advertiser_username=buyer.username,
+                                           creator_id=seller.id,  creator_username=seller.username,
+                                           asset_id=this_asset.id, asset_name=this_asset.name,
+                                           asset_picture=this_asset.picture_name, time_created=datetime.datetime.now())
+            db.add(this_endorsement)
+            db.commit()
+            flash("Payment Successful", "success")
+            return redirect(url_for('endorsements'))
+        except stripe.CardError:
+            flash("Payment Failed", "danger")
+            return redirect(url_for('profile'))
+
 
 # Sketch_up upload
 

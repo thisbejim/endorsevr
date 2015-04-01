@@ -14,7 +14,12 @@
             <div class="row text-center">
               <div class="col-md-12">
               <div class="profile-img-container">
+                {% if user.profile_pic %}
         <img class="img-respnsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{user.profile_pic}}" width="150px" height="150px">
+                {% else %}
+        <img class="img-respnsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/mushproper" width="150px" height="150px">
+                {% endif %}
+
           </div>
               </div>
             </div>
@@ -28,6 +33,14 @@
           <div class="form-group">
             <p class="help-block">Website</p>
             <input type="text" name="website" id="website" class="form-control" placeholder="{{ user.website}}">
+          </div>
+          <div class="form-group">
+            {% if user.stripe_user_id %}
+            <p class="text-success">Stripe Connected</p>
+            {% else %}
+            <p class="text-danger">Please setup payment processing</p>
+            {% endif %}
+           <a href="{{stripe_url}}"><img src="{{ url_for('static', filename='uploads/blue-on-light.png')}}"></a> 
           </div>
           <button class="btn btn-primary btn-block" type="submit">Edit</button>
         </form>

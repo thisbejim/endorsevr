@@ -57,6 +57,9 @@ class User(Base):
     twitter_id = Column(String(200))
     facebook_id = Column(String(200))
     advertiser = Column(Boolean, unique=False, default=False)
+    stripe_user_id = Column(String(200))
+    stripe_publishable_key = Column(String(200))
+    access_token = Column(String(200))
 
 # Setup Endorsement Table
 class Endorsement(Base):

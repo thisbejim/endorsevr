@@ -10,7 +10,11 @@
       <div class="row">
           <div class="col-md-12">
         <div class="profile-img-container">
+          {% if this_user.profile_pic %}
         <img class="img-respnsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/{{this_user.profile_pic}}" width="150px" height="150px">
+          {% else %}
+        <img class="img-respnsive" src="https://res-4.cloudinary.com/hdriydpma/image/upload/mushproper" width="150px" height="150px">
+          {% endif %}
           </div>
       </div>
       <div class="col-md-12 text-center">
