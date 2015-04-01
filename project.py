@@ -49,7 +49,7 @@ cloudinary.config(cloud_name="hdriydpma", api_key="936542698847873", api_secret=
 # Import crud
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Asset, Base, User, Endorsement, Paragraph, Project, TurnImg
+from database_setup import Asset, Base, User, Endorsement, Paragraph, Project
 
 # Create Session
 engine = create_engine(SQLALCHEMY_DATABASE_URI)
@@ -205,8 +205,7 @@ def priceLow():
 def new_project():
     this_user = findUser()
     endorse = endInfo(this_user)
-    if checkAuth('New'):
-        this_user = db.query(User).filter_by(id=session['user_id']).first()
+    if check_auth('new', None):
         if request.method == 'POST':
 
             description_text = request.form['description']
@@ -245,9 +244,9 @@ def new_project():
 @app.route('/new_asset', methods=['GET', 'POST'])
 def newAsset():
     this_user = findUser()
-    user_projects = db.query(Project).filter_by(user_id=session['user_id']).all()
     endorse = endInfo(this_user)
-    if checkAuth('New'):
+    if check_auth('new', None):
+        user_projects = db.query(Project).filter_by(user_id=session['user_id']).all()
         if user_projects:
 
             if request.method == 'POST':
@@ -315,7 +314,6 @@ def newAsset():
 # List unique asset
 @app.route('/assets/<int:asset_id>/', methods=['GET', 'POST'])
 def asset(asset_id):
-        users = db.query(User).all()
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         asset_owner = db.query(User).filter_by(id=this_asset.user_id).one()
         this_project = db.query(Project).filter_by(id=this_asset.project_id).one()
@@ -375,7 +373,7 @@ def editAsset(asset_id):
         this_asset = db.query(Asset).filter_by(id=asset_id).one()
         user_projects = db.query(Project).filter_by(user_id=session['user_id']).all()
         # Check editing privileges
-        if checkAuth(asset_id):
+        if check_auth('asset', asset_id):
             if request.method == 'POST':
                 # Check for changing attributes
                 file = request.files['file']
@@ -446,7 +444,7 @@ def edit_project(project_id):
         endorse = endInfo(this_user)
         this_project = db.query(Project).filter_by(id=project_id).one()
         # Check editing privileges
-        if True:
+        if check_auth('project', project_id):
             if request.method == 'POST':
                 # Check for changing attributes
 
@@ -480,7 +478,7 @@ def edit_project(project_id):
 # Delete unique asset
 @app.route('/assets/<int:asset_id>/delete/', methods=['GET', 'POST'])
 def delete_asset(asset_id):
-        if checkAuth(asset_id):
+        if check_auth('asset', asset_id):
             this_asset = db.query(Asset).filter_by(id=asset_id).one()
             db.delete(this_asset)
             db.commit()
@@ -493,7 +491,7 @@ def delete_asset(asset_id):
 # Delete unique project
 @app.route('/projects/<int:project_id>/delete/', methods=['GET', 'POST'])
 def delete_project(project_id):
-        if True:
+        if check_auth('project', project_id):
             this_project = db.query(Project).filter_by(id=project_id).one()
             db.delete(this_project)
             db.commit()
@@ -512,7 +510,7 @@ def register():
         not_unique = db.query(User).filter_by(username=request.form['username']).all()
         if not_unique:
             flash("Register failed, username not unique", "danger")
-            return redirect(url_for('register'))
+            return redirect(url_for('index'))
         else:
             hash = sha256_crypt.encrypt(request.form['password'])
             new = User(username=request.form['username'], email=request.form['email'], password_hash=hash,
@@ -522,7 +520,7 @@ def register():
             session['user_id'] = new.id
 
             flash("Register and Login Successful", "success")
-            return redirect(url_for('assets'))
+            return redirect(url_for('projects'))
 
     return render_template('register.html', user=this_user, endorsements=endorse)
 
@@ -544,11 +542,11 @@ def login():
                 return redirect(url_for('assets'))
             else:
                 flash("Incorrect Username or Password", "danger")
-                return redirect(url_for('login'))
+                return redirect(url_for('index'))
 
         else:
             flash("User does not exist", "danger")
-            return redirect(url_for('login'))
+            return redirect(url_for('index'))
 
     return render_template('login.html', user=this_user, endorsements=endorse)
 
@@ -613,24 +611,31 @@ def logout():
     return redirect(url_for('assets'))
 
 
-
 # Check authentication and editing privileges
-def checkAuth(asset_id):
+def check_auth(content_type, content_id):
     if 'user_id' in session:
-        if asset_id == 'New':
-            return True
-        else:
-            this_asset = db.query(Asset).filter_by(id=asset_id).one()
+        if content_type == 'project':
+            this_project = db.query(Project).filter_by(id=content_id).one()
+            if this_project.user_id == session['user_id']:
+                return True
+            else:
+                return False
+
+        if content_type == 'asset':
+            this_asset = db.query(Asset).filter_by(id=content_id).one()
             if this_asset.user_id == session['user_id']:
                 return True
             else:
                 return False
+
+        if content_type == 'new':
+            return True
     else:
         return False
 
 # Stripe
 
-# 3d view
+# Sketch_up upload
 
 def upload(data, files):
     """

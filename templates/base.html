@@ -3,16 +3,18 @@
 <head>
 
     <script src="https://code.jquery.com/jquery-2.1.1.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script> 
+  <script src="{{ url_for('static', filename='js/bootstrap.min.js')}}"></script> 
   <script type="text/javascript" src="{{ url_for('static', filename='js/sketchfab-viewer-1.0.0.js') }}"></script>
 
   
   <link rel=stylesheet href="{{ url_for('static', filename='css/bootstrap.min.css')}}">
-
   <link rel=stylesheet href="{{ url_for('static', filename='css/style.css')}}">
-  
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:400,300,500,400italic,700">
+  
+  <script type="text/javascript" src="{{ url_for('static', filename='js/validation/formValidation.min.js') }}"></script>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/validation/bootstrap.min.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/formvalidation.min.css')}}">
 </head>
 <body>
   
@@ -35,7 +37,7 @@
     {% with dangers = get_flashed_messages(category_filter=["danger"]) %}
         {% if dangers %}
           {%- for msg in dangers %}
-            <p class="fadeIn navbar-text">{{ msg }}</p>
+            <p class="fadeIn navbar-text"><a class="text-danger">{{ msg }}</a></p>
           {% endfor -%}
         {% endif %}
     {% endwith %}
@@ -43,7 +45,7 @@
     {% with successes = get_flashed_messages(category_filter=["success"]) %}
         {% if successes %}
           {%- for msg in successes %}
-        <p class="fadeIn navbar-text">{{ msg }}</p>
+        <p class="fadeIn navbar-text"><a class="text-success">{{ msg }}</a></p>
           {% endfor -%}
         {% endif %}
     {% endwith %}
@@ -91,20 +93,211 @@
         
       </ul>
       {% else %}
-      <li><a href="{{ url_for('register')}}">Register</a></li>
-      <li><a href="{{ url_for('login')}}">Login</a></li>
+      <li><a href="#" data-toggle="modal" data-target="#registerModal">Register</a></li>
+      <li><a href="#" data-toggle="modal" data-target="#loginModal">Login</a></li>
       {% endif %}
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
   
 
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Login</h3>
+      </div>
+      <div class="modal-body">
+ 
+        
+    <div class="row">
+      <div class="col-md-12">
+        <form action="{{ url_for('login')}}" id="login_form" method='post' enctype="multipart/form-data">
+          <p class="help-block">Username</p>
+          <div class="form-group">
+            <input type="text" name="username" id="username" class="form-control" required="required" placeholder="Username">
+          </div>
+          <p class="help-block">Password</p>
+          <div class="form-group">
+            <input type="text" name="password" id="password" class="form-control" required="required" placeholder="Password">
+          </div>
+        <button class="btn btn-primary btn-block" type="submit">Login</button>
+      </form>
+
+      </div>
+  </div>
+
+        
+      </div>
+      <div class="modal-footer">
+  <div class="row">
+      <div class="col-md-12 text-left">
+        New to endorsevr? <a href="#" onclick="toggleModals()">Sign up!</a>
+        </div>
+    </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+ <!-- Login Modal end --> 
+
+<!-- Register Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Register</h3>
+      </div>
+      <div class="modal-body">
+
+          <div class="row">
+      <div class="col-md-12">
+        <form id="register_form" action="{{ url_for('register')}}" method='post' enctype="multipart/form-data">
+          <p class="help-block">Username</p>
+          <div class="form-group">
+            <input type="text" name="username" id="username" class="form-control" required="required" placeholder="Username">
+          </div>
+          <p class="help-block">Email</p>
+          <div class="form-group">
+            <input type="text" name="email" id="email" class="form-control" required="required" placeholder="Email">
+          </div>
+          <p class="help-block">Password</p>
+          <div class="form-group">
+            <input type="text" name="password" id="password" class="form-control" required="required" placeholder="Password">
+          </div>
   
+<div class="checkbox text-center">
+  <label class="radio-inline">
+    <input type="radio" name="inlineRadioOptions" value="False" checked>
+    Creative
+  </label>
+
+  <label class="radio-inline">
+    <input type="radio" name="inlineRadioOptions" value="True">
+    Advertiser
+  </label>
+
+  </div>
+        <button class="btn btn-primary btn-block" type="submit">Register</button>
+      </form>
+      </div>
+    </div>
+        
+      </div>
+      <div class="modal-footer">
+        <div class="row">
+      <div class="col-md-12 text-left">
+        Have an account? <a href="#" onclick="toggleModals()" >Log in</a>
+        </div>
+    </div>
+      </div>
+    </div>
+  </div>
+</div>
+ <!-- Register Modal end --> 
 
 {% block content %}
 
 {% endblock %}
-
+<script>
+function toggleModals(){
+      $('#registerModal').modal('toggle')
+      $('#loginModal').modal('toggle')
+}
+  
+  $(document).ready(function() {
+    $('#register_form').formValidation({
+        framework: 'bootstrap',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+            email: {
+                validators: {
+                    emailAddress: {
+                        message: 'The value is not a valid email address'
+                    }
+                }
+            },
+          username: {
+                validators: {
+                    notEmpty: {
+                        message: 'The name is required'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 30,
+                        message: 'The name must be more than 6 and less than 30 characters long'
+                    }
+                }
+            },
+          password: {
+                validators: {
+                    notEmpty: {
+                        message: 'The password is required and cannot be empty'
+                    },
+                  stringLength: {
+                        min: 14,
+                        max: 50,
+                        message: 'The password must be at least 14 characters long'
+                    }
+                }
+            }
+        }
+    });
+  $('#login_form').formValidation({
+        framework: 'bootstrap',
+        icon: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+        fields: {
+          username: {
+                validators: {
+                    notEmpty: {
+                        message: 'The name is required'
+                    },
+                    stringLength: {
+                        min: 6,
+                        max: 30,
+                        message: 'The name must be more than 6 and less than 30 characters long'
+                    }
+                }
+            },
+          password: {
+                validators: {
+                    notEmpty: {
+                        message: 'The password is required and cannot be empty'
+                    },
+                  stringLength: {
+                        min: 14,
+                        max: 50,
+                        message: 'The password must be at least 14 characters long'
+                    }
+                }
+            }
+        }
+    });
+});
+  
+$( document ).ready(function() {
+    $('.navbar-text').each(function(i,obj) {
+      $(this).delay(3000).queue(function(){
+        $(this).removeClass('fadeIn');
+        $(this).addClass('fadeOut');
+        $(this).dequeue();
+        obj.style.opacity = 0;
+      }); 
+  });
+});
+</script>
 
 </body>
 </html>

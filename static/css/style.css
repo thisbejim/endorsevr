@@ -231,10 +231,34 @@ margin-left: 1px;
     border-right: 1px solid #ccc;
 }
 
+a.text-success {
+    text-decoration:none;
+}
+
+a.text-danger {
+    text-decoration:none;
+}
+
+
+/* Modal styling */
 
 #myModal{
     margin-top: 350px;
 }
+
+#loginModal .modal-dialog
+{
+    width: 400px; 
+  margin-top: 300px;
+}
+
+#registerModal .modal-dialog
+{
+    width: 400px; 
+  margin-top: 300px;
+}
+
+/* Modal styling end */
 
 .col-centered{
     float: none;
@@ -381,6 +405,43 @@ transition: all .5s;
 @-o-keyframes fadein {
     from { opacity: 0; }
     to   { opacity: 1; }
+}
+
+.fadeOut {
+    -webkit-animation: fadeOut 2s; /* Safari, Chrome and Opera > 12.1 */
+       -moz-animation: fadeOut 2s; /* Firefox < 16 */
+        -ms-animation: fadeOut 2s; /* Internet Explorer */
+         -o-animation: fadeOut 2s; /* Opera < 12.1 */
+            animation: fadeOut 2s;
+}
+
+@keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Firefox < 16 */
+@-moz-keyframes fadeOut{
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Safari, Chrome and Opera > 12.1 */
+@-webkit-keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Internet Explorer */
+@-ms-keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+}
+
+/* Opera < 12.1 */
+@-o-keyframes fadeOut {
+    from { opacity: 1; }
+    to   { opacity: 0; }
 }
 
 
