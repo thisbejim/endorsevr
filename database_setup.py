@@ -17,6 +17,10 @@ class Project(Base):
     picture_name = Column(String(250))
     user_id = Column(Integer, ForeignKey('users.id'))
     youtube_url = Column(String(250))
+    website = Column(String(250))
+    twitter = Column(String(250))
+    twitch = Column(String(250))
+    steam = Column(String(250))
     time_created = Column(DateTime)
     approved = Column(Boolean, unique=False, default=False)
 
@@ -56,7 +60,6 @@ class User(Base):
     github_id = Column(String(200))
     twitter_id = Column(String(200))
     facebook_id = Column(String(200))
-    advertiser = Column(Boolean, unique=False, default=False)
     stripe_user_id = Column(String(200))
     stripe_publishable_key = Column(String(200))
     access_token = Column(String(200))

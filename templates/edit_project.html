@@ -38,19 +38,77 @@
           </div>
 
           <div class="form-group">
-          <textarea type="text" rows="1" name="website" placeholder="Website"  class="form-control"></textarea>
+          <textarea type="text" rows="1" name="website" placeholder="{{project.website}}"  class="form-control"></textarea>
           </div>
           <div class="form-group">
-            <input type="text" name="youtube" class="form-control" placeholder="Youtube Url">
+            <input type="text" name="youtube" class="form-control" placeholder="youtube.com/{{project.youtube_url}}">
           </div>
           
-        <button class="btn btn-primary btn-block" type="submit">Create</button>
+          <p class="help-block">Social links</p>
+           <div class="form-group">
+          <button type="button" class="btn btn-default" onclick="toggleTwitch()"><i class="fa fa-twitch"></i></button>
+             <button type="button" class="btn btn-default" onclick="toggleSteam()"><i class="fa fa-steam"></i></button>
+             <button type="button" class="btn btn-default" onclick="toggleTwitter()"><i class="fa fa-twitter-square"></i></button>
+             
+          </div>
+          <div id="twitch" class="social_link form-group">
+            <div class="input-group">
+            <div class="input-group-addon">twitch.tv/</div>
+            <input type="text" name="twitch" class="form-control" placeholder="{{project.twitch}}">
+            </div>
+          </div>
+          <div id="steam" class="social_link form-group">
+            <div class="input-group">
+            <div class="input-group-addon">store.steampowered.com/app/</div>
+            <input type="text" name="steam" class="form-control" placeholder="{{project.steam}}">
+            </div>
+          </div>
+          <div id="twitter" class="social_link form-group">
+            <div class="input-group">
+            <div class="input-group-addon">twitter.com/</div>
+            <input type="text" name="twitter" class="form-control" placeholder="{{project.twitter}}">
+            </div>
+          </div>
+          
+        <button class="btn btn-primary btn-block" type="submit">Edit</button>
       </form>
-        <a class="btn btn-danger" href="{{ url_for('delete_project', project_id=project.id)}}" role="button">
+      <div class="smalldivider"></div>
+        <a class="btn btn-danger" data-toggle="modal" data-target="#deleteModal" role="button">
           <span class="glyphicon glyphicon-trash"></span>
         </a>
     </div>
   </div>
+    
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h3 class="modal-title" id="myModalLabel">Delete {{ project.name }}?</h3>
+      </div>
+      <div class="modal-body">
+
+          <div class="row">
+      <div class="col-md-12">
+<p>Are you sure you want to delete {{ project.name }}?</p>
+  
+        <a class="btn btn-danger" href="{{ url_for('delete_project', project_id=project.id)}}" role="button">
+          Yes</span>
+        </a>
+        <a class="btn btn-primary" data-dismiss="modal" role="button">
+          No
+        </a>
+
+      </div>
+    </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
+ <!-- Delete Modal --> 
+    
 </div>
 
 <script>
@@ -83,6 +141,16 @@ $(document).ready(function() {
         }
     });
 });
+  
+function toggleTwitch(){
+  $('#twitch').toggle();  
+}
+function toggleTwitter(){
+  $('#twitter').toggle(); 
+}
+function toggleSteam(){
+  $('#steam').toggle();
+}
 </script>
 
 

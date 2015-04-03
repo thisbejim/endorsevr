@@ -5,6 +5,7 @@ import logging
 from sqlalchemy import desc, asc
 from werkzeug import secure_filename
 import requests
+from requests import Session
 import json
 import cloudinary
 import cloudinary.uploader
@@ -14,6 +15,8 @@ from passlib.hash import sha256_crypt
 import stripe
 import time
 import oauthlib
+from threading import Thread
+
 
 SKETCHFAB_DOMAIN = 'sketchfab.com'
 SKETCHFAB_API_URL = 'https://api.{}/v2/models'.format(SKETCHFAB_DOMAIN)
@@ -120,7 +123,6 @@ def endorsements():
 def assets():
     all_assets = db.query(Asset).order_by(desc(Asset.time_created)).all()
     categories = db.query(Asset.category).group_by(Asset.category).all()
-    print(categories)
     users = db.query(User).all()
     this_user = findUser()
     endorse = endInfo(this_user)
@@ -213,11 +215,16 @@ def new_project():
     if check_auth('new', None):
         if request.method == 'POST':
 
-            description_text = request.form['description']
-            this_text = description_text.split('\n')
-
             this_project = Project(name=request.form['name'], category=request.form['category'], user_id=this_user.id,
-                                   time_created=datetime.datetime.now(), tag_line=request.form['tagline'])
+                                   time_created=datetime.datetime.now(), tag_line=request.form['tagline'],
+                                   website=request.form['website'])
+
+            if request.form['twitch']:
+                this_project.twitch = request.form['twitch']
+            if request.form['steam']:
+                this_project.steam = request.form['steam']
+            if request.form['twitter']:
+                this_project.twitter = request.form['twitter']
 
             file = request.files['file']
             if file and allowed_file(file.filename):
@@ -227,18 +234,27 @@ def new_project():
 
             if request.form['youtube']:
                 this_url = request.form['youtube']
-                referb = this_url.split("=")
-                this_project.youtube_url = referb[1]
+                split_url = this_url.split("=")
+                this_project.youtube_url = split_url[1]
 
             db.add(this_project)
             db.commit()
+
+            description_text = request.form['description']
+            this_text = description_text.split('\n')
             for i in this_text:
                 this_paragraph = Paragraph(text=i, project_id=this_project.id, time_created=datetime.datetime.now())
                 db.add(this_paragraph)
                 db.commit()
 
+            if this_user.website is None:
+                this_user.website = this_project.website
+
             flash("New Project Created", "success")
-            return redirect(url_for('profile'))
+            if this_project:
+                return redirect(url_for('project', project_id=this_project.id))
+            else:
+                return redirect(url_for('profile'))
         else:
             return render_template('new_project.html', user=this_user, endorsements=endorse)
     else:
@@ -295,18 +311,17 @@ def newAsset():
                         'modelFile': f
                     }
 
-                    try:
-                        model_uid = upload(data, files)
-                        if poll_processing_status(model_uid)[0] == 1:
-                            model = poll_processing_status(model_uid)[1]
-                            referb = model.split("models/")
-                            this_asset.model_url = referb[1]
+                    t = Thread(target=upload, args=(f, this_asset, data, files))
+                    t.start()
 
-                    finally:
-                        f.close()
+
+
 
                 flash("New Asset Created", "success")
-                return redirect(url_for('profile'))
+                if this_asset:
+                    return redirect(url_for('asset', asset_id=this_asset.id))
+                else:
+                    return redirect(url_for('profile'))
             else:
                 return render_template('new_asset.html', user=this_user, endorsements=endorse, projects=user_projects)
         else:
@@ -409,19 +424,15 @@ def editAsset(asset_id):
                     }
 
                     try:
-                        model_uid = upload(data, files)
-                        if poll_processing_status(model_uid)[0] == 1:
-                            model = poll_processing_status(model_uid)[1]
-                            split_url = model.split("models/")
-                            this_asset.model_url = split_url[1]
+                        q = queue.Queue()
+                        model_uid = upload(data, files, )
+                        this_asset.model_url = model_uid
 
                     finally:
                         f.close()
 
                 if request.form['name']:
                     this_asset.name = request.form['name']
-
-
                 if request.form['category']:
                     this_asset.category = request.form['category']
                 if request.form['subcategory']:
@@ -434,6 +445,7 @@ def editAsset(asset_id):
                     cloudinary.uploader.upload(request.files['picture'], public_id=filename[0])
                     this_asset.picture_name = filename[0]
 
+
                 db.add(this_asset)
                 db.commit()
                 flash("Asset Edited", "success")
@@ -443,7 +455,7 @@ def editAsset(asset_id):
                                        projects=user_projects)
         else:
             flash("Access Denied", "danger")
-            return redirect(url_for('assets'))
+            return redirect(url_for('asset', asset_id=asset_id))
 
 # Edit unique asset
 @app.route('/projects/<int:project_id>/edit', methods=['GET', 'POST'])
@@ -472,16 +484,22 @@ def edit_project(project_id):
                     filename = secure_filename(file.filename).split(".")
                     cloudinary.uploader.upload(request.files['file'], public_id=filename[0])
                     this_project.picture_name = filename[0]
+                if request.form['twitch']:
+                    this_project.twitch = request.form['twitch']
+                if request.form['steam']:
+                    this_project.steam = request.form['steam']
+                if request.form['twitter']:
+                    this_project.twitter = request.form['twitter']
 
                 db.add(this_project)
                 db.commit()
                 flash("Project Edited", "success")
                 return redirect(url_for('project',  project_id=project_id))
             else:
-                return render_template('edit.html', project=this_project, user=this_user, endorsements=endorse)
+                return render_template('edit_project.html', project=this_project, user=this_user, endorsements=endorse)
         else:
             flash("Access Denied", "danger")
-            return redirect(url_for('assets'))
+            return redirect(url_for('project', project_id=project_id))
 
 # Delete unique asset
 @app.route('/assets/<int:asset_id>/delete/', methods=['GET', 'POST'])
@@ -490,24 +508,27 @@ def delete_asset(asset_id):
             this_asset = db.query(Asset).filter_by(id=asset_id).one()
             db.delete(this_asset)
             db.commit()
-            flash("Asset Deleted", "danger")
+            flash("Asset Deleted", "success")
             return redirect(url_for('profile'))
         else:
             flash("Access Denied", "danger")
-            return redirect(url_for('assets'))
+            return redirect(url_for('asset', asset_id=asset_id))
 
 # Delete unique project
 @app.route('/projects/<int:project_id>/delete/', methods=['GET', 'POST'])
 def delete_project(project_id):
         if check_auth('project', project_id):
+            project_paragraphs = db.query(Paragraph).filter_by(project_id=project_id).all()
+            for i in project_paragraphs:
+                db.delete(i)
             this_project = db.query(Project).filter_by(id=project_id).one()
             db.delete(this_project)
             db.commit()
-            flash("Project Deleted", "danger")
+            flash("Project Deleted", "success")
             return redirect(url_for('profile'))
         else:
             flash("Access Denied", "danger")
-            return redirect(url_for('assets'))
+            return redirect(url_for('project', project_id=project_id))
 
 # Register
 @app.route('/register', methods=['GET', 'POST'])
@@ -521,8 +542,7 @@ def register():
             return redirect(url_for('index'))
         else:
             hash = sha256_crypt.encrypt(request.form['password'])
-            new = User(username=request.form['username'], email=request.form['email'], password_hash=hash,
-                       advertiser=request.form['inlineRadioOptions'])
+            new = User(username=request.form['username'], email=request.form['email'], password_hash=hash)
             db.add(new)
             db.commit()
             session['user_id'] = new.id
@@ -547,7 +567,7 @@ def login():
             if sha256_crypt.verify(request.form['password'], hash):
                 session['user_id'] = this_user.id
                 flash("Login Successful", "success")
-                return redirect(url_for('assets'))
+                return redirect(url_for('projects'))
             else:
                 flash("Incorrect Username or Password", "danger")
                 return redirect(url_for('index'))
@@ -564,15 +584,15 @@ def profile():
     if 'user_id' in session:
         # Find and list all assets created by user
         this_user = findUser()
-
         endorse = endInfo(this_user)
         user_assets = db.query(Asset).filter_by(user_id=this_user.id).all()
-        projects = db.query(Project).filter_by(user_id=this_user.id).all()
+        user_projects = db.query(Project).filter_by(user_id=this_user.id).all()
 
         return render_template('profile.html', user=this_user, assets=user_assets, endorsements=endorse,
-                               projects=projects)
+                               projects=user_projects)
     else:
-        return redirect(url_for('login'))
+        flash("Please log in", "danger")
+        return redirect(url_for('index'))
 
 # Profile page, redirect if not authenticated
 @app.route('/user/<int:user_id>/')
@@ -580,10 +600,10 @@ def user(user_id):
     this_user = findUser()
     endorse = endInfo(this_user)
     owner = db.query(User).filter_by(id=user_id).first()
-    projects = db.query(Project).filter_by(user_id=user_id).all()
+    user_projects = db.query(Project).filter_by(user_id=user_id).all()
     user_assets = db.query(Asset).filter_by(user_id=user_id).all()
     return render_template('user.html', user=this_user, this_user=owner, assets=user_assets, endorsements=endorse,
-                           projects=projects)
+                           projects=user_projects)
 
 @app.route('/settings', methods=['GET', 'POST'])
 def settings():
@@ -591,7 +611,7 @@ def settings():
         endorse = endInfo(this_user)
         stripe_url="https://connect.stripe.com/oauth/authorize?response_type=code&client_id=ca_5we9ErQZG1PtAUgdiS9IaOw7RI4J4Sld&scope=read_write"
         # Check editing privileges
-        if True:
+        if check_auth('settings', None):
             if request.method == 'POST':
                 # Check for changing attributes
                 if request.form['username']:
@@ -611,13 +631,16 @@ def settings():
                 return redirect(url_for('profile'))
             else:
                 return render_template('settings.html', user=this_user, endorsements=endorse, stripe_url=stripe_url)
+        else:
+            flash("Please log in", "danger")
+            return redirect(url_for('index'))
 
 # Logout
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
     flash("Logged Out", "success")
-    return redirect(url_for('assets'))
+    return redirect(url_for('projects'))
 
 
 # Check authentication and editing privileges
@@ -639,27 +662,12 @@ def check_auth(content_type, content_id):
 
         if content_type == 'new':
             return True
+        if content_type == 'settings':
+            return True
     else:
         return False
 
 # Stripe
-
-# stripe.api_key = PLATFORM_SECRET_KEY
-# stripe.Charge.create(
-#   amount=1000,
-#   currency='gbp',
-#   source={TOKEN},
-#   stripe_account={CONNECTED_STRIPE_ACCOUNT_ID}
-# )
-# resp = facebook.authorized_response()
-#     if resp is None:
-#         flash("Authentication Failed", "danger")
-#         return redirect(url_for('assets'))
-#
-#     payload = {'access_token': resp['access_token']}
-#     r = requests.get('https://graph.facebook.com/me', params=payload)
-#     info = json.loads(r.text)
-#     user = db.query(User).filter_by(facebook_id=info['id']).first()
 
 @app.route('/authorize')
 def authorize():
@@ -677,13 +685,14 @@ def callback():
     url = 'https://connect.stripe.com/oauth/token'
     resp = requests.post(url, params=payload)
     info = json.loads(resp.text)
-    print(info)
+
     this_user.stripe_user_id = info['stripe_user_id']
     this_user.stripe_publishable_key = info['stripe_publishable_key']
     this_user.access_token = info['access_token']
     db.add(this_user)
     db.commit()
-    return redirect('projects')
+    flash("Stripe connected", "success")
+    return redirect('settings')
 
 @app.route('/payment/<int:asset_id>/<int:buyer_id>/<int:seller_user_id>/', methods=['GET', 'POST'])
 def pay(asset_id, buyer_id, seller_user_id):
@@ -715,14 +724,15 @@ def pay(asset_id, buyer_id, seller_user_id):
 
 # Sketch_up upload
 
-def upload(data, files):
+def upload(f, this_asset, data, files):
     """
     Upload a model to sketchfab
     """
     print('Uploading ...')
+    tester = Session()
 
     try:
-        r = requests.post(SKETCHFAB_API_URL, data=data, files=files, verify=False)
+        r = tester.post(SKETCHFAB_API_URL, data=data, files=files, verify=False)
     except requests.RequestException as e:
         print("An error occured: {}".format(e))
         return
@@ -736,67 +746,90 @@ def upload(data, files):
     model_uid = result['uid']
     model_url = SKETCHFAB_MODEL_URL + model_uid
     print("Upload successful. Your model is being processed.")
-    print("Once the processing is done, the model will be available at: {}".format(model_url))
+    this_asset.model_url = model_uid
+    db.add(this_asset)
+    db.commit()
+    f.close()
 
-    return model_uid
+# @app.route('/progress')
+# def progress():
+#     if yet:
+#         def generate():
+#             x = 0
+#             while x < 100:
+#                 print(x)
+#                 x += 1
+#                 time.sleep(1)
+#                 yield "data:" + str(x) + "\n\n"
+#         return Response(generate(), mimetype='text/event-stream')
+#     else:
+#         def generate():
+#             yield "data: 0" + "\n\n"
+#         return Response(generate(), mimetype='text/event-stream')
 
 
-def poll_processing_status(model_uid):
+@app.route('/nope')
+def poll_processing_status():
     """
     Poll the Sketchfab API to query the processing status
     """
-    polling_url = "{}/{}/status?token={}".format(SKETCHFAB_API_URL, model_uid, YOUR_API_TOKEN)
-    max_errors = 10
-    errors = 0
-    retry = 0
-    max_retries = 50
-    retry_timeout = 5  # seconds
 
-    print("Start polling processing status for model {}".format(model_uid))
+    def generate():
 
-    while (retry < max_retries) and (errors < max_errors):
-        print("Try polling processing status (attempt #{}) ...".format(retry))
+        model_uid = session['model_uid']
+        print("Start polling processing status for model {}".format(model_uid))
+        polling_url = "{}/{}/status?token={}".format(SKETCHFAB_API_URL, model_uid, YOUR_API_TOKEN)
+        max_errors = 10
+        errors = 0
+        retry = 0
+        max_retries = 50
+        retry_timeout = 5  # seconds
+        progress = 0
+        while (retry < max_retries) and (errors < max_errors):
+            print("Try polling processing status (attempt #{}) ...".format(retry))
 
-        try:
-            r = requests.get(polling_url)
-        except requests.RequestException as e:
-            print("Try failed with error {}".format(e))
-            errors += 1
+            try:
+                r = requests.get(polling_url)
+            except requests.RequestException as e:
+                print("Try failed with error {}".format(e))
+                errors += 1
+                retry += 1
+                continue
+
+            result = r.json()
+
+            if r.status_code != requests.codes.ok:
+                print("Upload failed with error: {}".format(result['error']))
+                errors += 1
+                retry += 1
+                continue
+
+            processing_status = result['processing']
+            if processing_status == 'PENDING':
+                print("Your model is in the processing queue. Will retry in {} seconds".format(retry_timeout))
+                print("Want to skip the line? Get a pro account! https://sketchfab.com/plans")
+                retry += 1
+                time.sleep(retry_timeout)
+                continue
+            elif processing_status == 'PROCESSING':
+                print("Your model is still being processed. Will retry in {} seconds".format(retry_timeout))
+                retry += 1
+                progress += 10
+                time.sleep(retry_timeout)
+                yield "data:" + str(progress) + "\n\n"
+                continue
+            elif processing_status == 'FAILED':
+                print("Processing failed: {}".format(result['error']))
+                return
+            elif processing_status == 'SUCCEEDED':
+                model_url = SKETCHFAB_MODEL_URL + model_uid
+                this = [1, model_url]
+                print("Processing successful. Check your model here: {}".format(model_url))
+                session.pop('model_uid', None)
+                return this
+
             retry += 1
-            continue
-
-        result = r.json()
-
-        if r.status_code != requests.codes.ok:
-            print("Upload failed with error: {}".format(result['error']))
-            errors += 1
-            retry += 1
-            continue
-
-        processing_status = result['processing']
-        if processing_status == 'PENDING':
-            print("Your model is in the processing queue. Will retry in {} seconds".format(retry_timeout))
-            print("Want to skip the line? Get a pro account! https://sketchfab.com/plans")
-            retry += 1
-            time.sleep(retry_timeout)
-            continue
-        elif processing_status == 'PROCESSING':
-            print("Your model is still being processed. Will retry in {} seconds".format(retry_timeout))
-            retry += 1
-            time.sleep(retry_timeout)
-            continue
-        elif processing_status == 'FAILED':
-            print("Processing failed: {}".format(result['error']))
-            return
-        elif processing_status == 'SUCCEEDED':
-            model_url = SKETCHFAB_MODEL_URL + model_uid
-            this = [1, model_url]
-            print("Processing successful. Check your model here: {}".format(model_url))
-            return this
-
-        retry += 1
-
-    print("Stopped polling after too many retries or too many errors")
+    return Response(generate(), mimetype='text/event-stream')
 
 
 if __name__ == '__main__':

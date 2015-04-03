@@ -141,25 +141,37 @@
             </div>
             </div>
          </div>
-        
+
         <div class="col-md-12"> 
       
-
                <div class="animbox well">
                  <div class="col-md-10">
                    <div class="row">
                      <div class="col-md-12">
-        <i class="fa fa-facebook-square fa-3x padthis"></i>
-                 <i class="fa fa-steam-square fa-3x padthis"></i>
-                   <i class="fa fa-twitter-square fa-3x padthis"></i>
+                    {% if project.twitch %}
+                       <a href="{{ ''.join(['http://twitch.com/', project.twitch]) }}" target="_blank">
+                      <i class="fa fa-twitch fa-3x padthis"></i>
+                         </a>
+                    {% endif %}
+                    {% if project.steam %}
+                       <a href="{{ ''.join(['store.steampowered.com/app/', project.steam]) }}" target="_blank">
+                      <i class="fa fa-steam fa-3x padthis"></i>
+                         </a>
+                    {% endif %}
+                    {% if project.twitter %}
+                       <a href="{{ ''.join(['http://twitter.com/', project.twitter]) }}" target="_blank">
+                      <i class="fa fa-twitter-square fa-3x padthis"></i>
+                         </a>
+                    {% endif %}
+                 
                       </div>
                      </div>
                    
                    <div class="row">
                      <div class="col-md-8 col-md-offset-3">
                        <div class="divider"></div>
-                         <a href="{{ url_for('user', user_id=assetOwner.id)}}">
-                       <p>{{ assetOwner.username}}</p>
+                         <a href="{{ ''.join(['http://', project.website]) }}" target="_blank">
+                       <p>{{ project.website}}</p>
                        </a>
                      </div>
                    </div>

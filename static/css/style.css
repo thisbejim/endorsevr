@@ -258,6 +258,12 @@ a.text-danger {
   margin-top: 300px;
 }
 
+#deleteModal .modal-dialog
+{
+    width: 400px; 
+  margin-top: 300px;
+}
+
 /* Modal styling end */
 
 .col-centered{
@@ -290,6 +296,13 @@ background-color: #f9f9f9;
   
 }
 
+.social_link{
+  display: None
+}
+
+.progress{
+display: None
+}
 
 .animthis{
 

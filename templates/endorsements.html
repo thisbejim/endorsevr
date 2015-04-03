@@ -5,7 +5,7 @@
     <div class="row">
       <div class="col-md-12">
 
-{% if user.advertiser == False %}
+
          <!-- Body content -->
         <div class="row">
           <div class="col-md-12 text-center">
@@ -17,6 +17,9 @@
     <div class="smalldivider"></div>
          
       {% for i in endorsements.endorse %}
+          
+          
+          {% if i.creator_id == user.id %}
       <div class="row">
         <a href="{{ url_for('category', asset_category='Clothing')}}"><h2>{{ i.asset_name }}</h2></a>
         <div class="line"></div>
@@ -74,25 +77,9 @@
           {% endif %}
       </div>
           </div>
-          {% endfor %}
           
-  <div class="divider"></div>
-          
-{% else %}
+          {% elif i.advertiser_id == user.id %}
     
-     
-          
-<!-- Body content -->
-        <div class="row">
-          <div class="col-md-12 text-center">
-        <h1>Endorsed</h1>
-        </div>
-      <!-- Show course authoring options if authenticated, otherwise show login option -->
-   
-        
-    <div class="smalldivider"></div>
-         
-      {% for i in endorsements.endorse %}
       <div class="row">
         <a href="{{ url_for('category', asset_category='Clothing')}}"><h2>{{ i.asset_name }}</h2></a>
         <div class="line"></div>
@@ -143,12 +130,13 @@
           {% endif %}
       </div>
           </div>
-          {% endfor %}
+
           
   <div class="divider"></div>          
     
-          
 {% endif %}
+
+{% endfor %}
           
           
           

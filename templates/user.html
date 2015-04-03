@@ -20,6 +20,14 @@
       <div class="col-md-12 text-center">
         <h3>{{ this_user.username }}</h3>
       </div>
+        
+        {% if this_user.website %}
+      <div class="col-md-12 text-center">
+        <a href="{{ ''.join(['http://', this_user.website]) }}" target="_blank">
+        <p>{{ this_user.website }}</p>
+        </a>
+      </div>
+        {% endif %}
       </div>  
         
         <div class="smalldivider"></div>
