@@ -1,27 +1,7 @@
-# Mentor
+# Endorsevr
 
-Build and share your online tutorials. 
+A platform for VR developers to connect with businesses for product placements on digital assets.
 
 ## Usage
 
-Mentor is a platform for building online courses and educational material.
-
-Login to get started, create a new course, and create your course content on your course's page.
-
-Your course content can include text, youtube videos, or soundcloud files.
-
-## Installation
-
-Requires python and pip.
-
-git clone https://github.com/thisbejim/mentor.git
-
-pip install -r requirements.txt
-
-python project.py
-
-Open http://localhost:5000/
-
-## Heroku
-
-You can try this app at http://mentor-app.herokuapp.com/
+Detail your Virtual Reality projects and upload 3d assets with product placement specifications. Businesses can buy the space on your 3d assets and send you marketing materials to use as textures. Monetize anything from a resilient billboard in a war-ravaged city to the shoes your characters wear on a VR adventure.   
