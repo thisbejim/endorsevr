@@ -10,8 +10,8 @@ Base = declarative_base()
 # Setup Project Table
 class Project(Base):
     __tablename__ = 'project'
-    name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
+    name = Column(String(80))
     tag_line = Column(String(250))
     category = Column(String(250))
     picture_name = Column(String(250))
@@ -27,8 +27,8 @@ class Project(Base):
 # Setup Asset Table
 class Asset(Base):
     __tablename__ = 'asset'
-    name = Column(String(80), nullable=False)
     id = Column(Integer, primary_key=True)
+    name = Column(String(80), nullable=False)
     tag_line = Column(String(250))
     category = Column(String(250))
     sub_category = Column(String(250))

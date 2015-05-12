@@ -45,7 +45,7 @@ app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
 SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL','postgresql://James:james@localhost:5432/mytest')
 app.config['SITE'] = "http://0.0.0.0:5000/"
-
+app.config['DEBUG'] = True
 app.config['CLIENT_ID'] = "ca_5we9ErQZG1PtAUgdiS9IaOw7RI4J4Sld"
 app.config['API_KEY'] = "sk_test_0OzGigpXejNgMJFqJbZWTfgd"
 app.config['PUBLISHABLE_KEY'] = "pk_test_JgVPXsrOEQvLo6cP657UUdPQ"
@@ -753,6 +753,5 @@ def upload(f, this_asset, data, files):
 
 
 if __name__ == '__main__':
-    app.debug = True
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
