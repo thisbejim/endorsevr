@@ -67,6 +67,7 @@
 </div>
 
 <div class="row">
+  {% if user %}
         <div class="col-md-12">
 
         <form action="{{ url_for('pay', asset_id=asset.id, buyer_id=user.id, seller_user_id=assetOwner.id,)}}" method='post' enctype="multipart/form-data">
@@ -81,7 +82,15 @@
   </script>
 </form>
           </div>
+  {% else %}
+   <div class="col-md-12">
+     Please login to purchase.
+  </div>
+  
+  {% endif %}
             </div>
+              
+              
             </div>
       </div>
       
